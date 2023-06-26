@@ -1,0 +1,122 @@
+theme:
+  version: '1.0'
+  items:
+    - timestamp
+    - level
+    - logger
+    - message
+    - fields
+    - caller
+  formatting:
+    timestamp:
+      outer:
+        style:
+          foreground: bright-black
+    level:
+      all:
+        outer:
+          prefix: '|'
+          suffix: '|'
+      debug:
+        text: 'DBG'
+        inner:
+          style:
+            foreground: magenta
+      info:
+        text: 'INF'
+        inner:
+          style:
+            foreground: cyan
+      warning:
+        text: 'WRN'
+        outer:
+          style:
+            foreground: bright-yellow
+            modes: [reversed]
+      error:
+        text: 'ERR'
+        outer:
+          style:
+            foreground: bright-red
+            modes: [reversed]
+      unknown:
+        text: '(?)'
+        inner:
+          style:
+            foreground: default
+    logger:
+      outer:
+        suffix: ':'
+        style:
+          foreground: bright-black
+    message:
+      outer:
+        style:
+          foreground: bright-white
+    field:
+      inner:
+        style:
+          foreground: bright-black
+      separator: '='
+    key:
+      outer:
+        style:
+          foreground: green
+    caller:
+      outer:
+        prefix: '@ '
+        style:
+          foreground: bright-black
+          modes: [italic]
+    types:
+      array:
+        outer:
+          prefix: '['
+          suffix: ']'
+          style:
+            foreground: default
+        separator: ','
+      object:
+        outer:
+          prefix: '{'
+          suffix: '}'
+          style:
+            foreground: default
+        separator: ','
+      string:
+        outer:
+          prefix: "'"
+          suffix: "'"
+          style:
+            foreground: default
+      number:
+        outer:
+          style:
+            foreground: bright-blue
+      time:
+        outer:
+          prefix: ''''
+          suffix: ''''
+          style:
+            foreground: bright-cyan
+      duration:
+        outer:
+          style:
+            foreground: bright-blue
+      boolean:
+        outer:
+          style:
+            foreground: red
+      'null':
+        outer:
+          style:
+            foreground: red
+      error:
+        outer:
+          prefix: ''''
+          suffix: ''''
+          style:
+            foreground: default
+        inner:
+          style:
+            foreground: default

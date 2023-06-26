@@ -1,0 +1,55 @@
+# Specifies a built-in theme name if starts with '@' character 
+#   or a path to file with a custom theme.
+# Currently supported built-in themes:
+# - '@default'
+theme: '@default'
+
+# Specifies log message timestamp settings.
+timestamp:
+  # Specifies log message timestamp format.
+  # Default value is 'Jan _2 15:04:05.000'.
+  # See https://pkg.go.dev/time#pkg-constants for more details.
+  format: 'Jan _2 15:04:05.000'
+
+# Specifies caller reference settings.
+caller:
+  # Specifies caller output format.
+  # Allowed values are:
+  # - 'short' - '<package>/<filename>:<line>' format
+  # - 'long' - '<full-file-path>:<line>' format
+  # Default is 'short'.
+  format: short
+
+# Specifies field values settings.
+values:
+  # Specifies time field values settings.
+  time: 
+    # Specifies time format in field values.
+    # Default value is 'Jan _2 15:04:05.000'.
+    # See https://pkg.go.dev/time#pkg-constants for more details.
+    format: 'Jan _2 15:04:05.000'
+  
+  # Specifies duration field values settings.
+  duration: 
+    # Specifies duration format.
+    # Allowed values are:
+    # - 'hms' -- '<hours>:<minutes>:<seconds>' format
+    # - 'seconds' -- '<seconds>' format
+    # - 'dynamic' -- '<value> <unit>' format
+    # Default is 'hms'.
+    format: 'hms'
+  
+    # Specifies seconds precision for 'seconds' or 'hms' format.
+    # - auto means automatic precision
+    # - 0 means seconds precision
+    # - 3 means milliseconds precision
+    # - 6 means microseconds precision
+    # Default is 'auto'.
+    precision: auto
+  
+  # Specifies error output settings.
+  error:
+    # Specifies error output format.
+    # Allowed values are: ['short', 'long']
+    # Default is 'short'.
+    format: short

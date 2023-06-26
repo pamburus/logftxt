@@ -1,0 +1,11 @@
+theme: '@default'
+timestamp:
+  format: 'Jan _2 15:04:05.000'
+caller:
+  format: short
+values:
+  time: 
+    format: 'Jan _2 15:04:05.000'
+  duration: 
+    format: 'hms'
+    precision: auto
