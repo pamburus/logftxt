@@ -10,9 +10,9 @@ import (
 	"github.com/pamburus/logftxt/internal/pkg/pathx"
 )
 
-// DefaultFS constructs default FS implementation.
-func DefaultFS() FS {
-	return &defaultFS{}
+// SystemFS constructs default FS implementation that accesses operating system's root filesystem.
+func SystemFS() FS {
+	return &systemFS{}
 }
 
 // FS is an abstract filesystem for accessing configuration files.
@@ -20,8 +20,6 @@ type FS interface {
 	ConfigDir() (fs.FS, error)
 	Open(filename string) (fs.File, error)
 }
-
-// ---
 
 // WithFS returns an FSOption.
 func WithFS(value FS) FSOption {
@@ -40,19 +38,23 @@ type FSOption struct {
 	value FS
 }
 
-func (v FSOption) toFSOptions(o *fsOptions) {
+func (v FSOption) toAppenderOptions(o *appenderOptions) {
 	o.fs = v.value
 }
 
-func (v FSOption) toFSEnvOptions(o *fsEnvOptions) {
+func (v FSOption) toEncoderOptions(o *encoderOptions) {
 	o.fs = v.value
+}
+
+func (v FSOption) toDomain(d *domain) {
+	d.fs = v.value
 }
 
 // ---
 
-type defaultFS struct{}
+type systemFS struct{}
 
-func (f *defaultFS) ConfigDir() (fs.FS, error) {
+func (f *systemFS) ConfigDir() (fs.FS, error) {
 	dir, err := cfgdir.Locate()
 	if err != nil {
 		return nil, fmt.Errorf("failed to locate configuration directory: %v", err)
@@ -61,7 +63,7 @@ func (f *defaultFS) ConfigDir() (fs.FS, error) {
 	return os.DirFS(dir), nil
 }
 
-func (f *defaultFS) Open(filename string) (fs.File, error) {
+func (f *systemFS) Open(filename string) (fs.File, error) {
 	if filepath.IsAbs(filename) || pathx.OS().HasPrefix(filename, ".") || pathx.OS().HasPrefix(filename, "..") {
 		return os.Open(filename) //nolint:gosec
 	}
@@ -72,33 +74,4 @@ func (f *defaultFS) Open(filename string) (fs.File, error) {
 	}
 
 	return configDir.Open(filename)
-}
-
-// ---
-
-type fsOption interface {
-	toFSOptions(*fsOptions)
-	fsEnvOption
-}
-
-// ---
-
-type fsOptions struct {
-	fs FS
-}
-
-func (o fsOptions) With(other []fsOption) fsOptions {
-	for _, oo := range other {
-		oo.toFSOptions(&o)
-	}
-
-	return o
-}
-
-func (o fsOptions) WithDefaults() fsOptions {
-	if o.fs == nil {
-		o.fs = DefaultFS()
-	}
-
-	return o
 }

@@ -11,14 +11,21 @@ import (
 
 	"github.com/pamburus/go-tst/tst"
 	"github.com/pamburus/logftxt"
-	"github.com/pamburus/logftxt/internal/pkg/env"
 	"github.com/pamburus/logftxt/internal/pkg/pathx"
 )
 
 func TestEncoder(tt *testing.T) {
 	t := tst.New(tt)
 
-	env.Unset()
+	envColor := func(value bool) logftxt.Environment {
+		return func(name string) (string, bool) {
+			if !value && name == "NO_COLOR" {
+				return "1", true
+			}
+
+			return "", false
+		}
+	}
 
 	config, err := logftxt.LoadConfig("./encoder_test.config.yml")
 	t.Expect(err).ToNot(tst.HaveOccurred())
@@ -69,7 +76,7 @@ func TestEncoder(tt *testing.T) {
 			return func(t tst.Test) {
 				buf := logf.NewBuffer()
 				writer, closeWriter := logf.NewChannelWriter(logf.ChannelWriterConfig{
-					Appender: fixedTimestampAppender{logftxt.NewAppender(buf, config, theme), someTime},
+					Appender: fixedTimestampAppender{logftxt.NewAppender(buf, config, theme, envColor(false)), someTime},
 				})
 				logger := logf.NewLogger(logf.LevelDebug, writer).WithName("me")
 				logger.Info("msg", field)
@@ -276,7 +283,7 @@ func TestEncoder(tt *testing.T) {
 	})
 
 	t.Run("ConfigProvideError", func(t tst.Test) {
-		enc := logftxt.NewEncoder(theme, logftxt.ConfigProvideFunc(func() (*logftxt.Config, error) {
+		enc := logftxt.NewEncoder(theme, envColor(false), logftxt.ConfigProvideFunc(func(logftxt.Domain) (*logftxt.Config, error) {
 			return nil, errors.New("cperr")
 		}))
 
@@ -293,7 +300,7 @@ func TestEncoder(tt *testing.T) {
 		theme, err := theme.Load()
 		t.Expect(err).ToNot(tst.HaveOccurred())
 
-		enc := logftxt.NewEncoder(theme, logftxt.ThemeProvideFunc(func() (*logftxt.Theme, error) {
+		enc := logftxt.NewEncoder(theme, envColor(false), logftxt.ThemeProvideFunc(func(logftxt.Domain) (*logftxt.Theme, error) {
 			return nil, errors.New("tperr")
 		}))
 
@@ -307,7 +314,7 @@ func TestEncoder(tt *testing.T) {
 	})
 
 	t.Run("NoThemeSetting", func(t tst.Test) {
-		enc := logftxt.NewEncoder(&logftxt.Config{})
+		enc := logftxt.NewEncoder(envColor(false), &logftxt.Config{})
 		buf := logf.NewBuffer()
 		t.Expect(enc.Encode(buf, logf.Entry{
 			Text: "msg",
@@ -317,9 +324,9 @@ func TestEncoder(tt *testing.T) {
 	})
 
 	t.Run("Config", func(t tst.Test) {
-		test := func(cfg logftxt.Config, field logf.Field, expected string, mw ...func(*logf.Entry)) {
+		test := func(t tst.Test, cfg logftxt.Config, field logf.Field, expected string, mw ...func(*logf.Entry)) {
 			t.Helper()
-			enc := logftxt.NewEncoder(cfg, theme)
+			enc := logftxt.NewEncoder(cfg, envColor(false), theme)
 			buf := logf.NewBuffer()
 			entry := logf.Entry{
 				Text:   "msg",
@@ -336,18 +343,18 @@ func TestEncoder(tt *testing.T) {
 			t.Run("HMS", func(t tst.Test) {
 				cfg := logftxt.Config{}
 				cfg.Values.Duration.Format = logftxt.DurationFormatHMS
-				test(cfg, logf.Duration("a", time.Minute), "a=00:01:00")
+				test(t, cfg, logf.Duration("a", time.Minute), "a=00:01:00")
 			})
 
 			t.Run("Seconds", func(t tst.Test) {
 				cfg := logftxt.Config{}
 				cfg.Values.Duration.Format = logftxt.DurationFormatSeconds
-				test(cfg, logf.Duration("a", time.Minute), "a=60")
+				test(t, cfg, logf.Duration("a", time.Minute), "a=60")
 			})
 			t.Run("Dynamic", func(t tst.Test) {
 				cfg := logftxt.Config{}
 				cfg.Values.Duration.Format = logftxt.DurationFormatDynamic
-				test(cfg, logf.Duration("a", time.Minute), "a=1m0s")
+				test(t, cfg, logf.Duration("a", time.Minute), "a=1m0s")
 			})
 		})
 
@@ -355,7 +362,7 @@ func TestEncoder(tt *testing.T) {
 			t.Run("Long", func(t tst.Test) {
 				cfg := logftxt.Config{}
 				cfg.Caller.Format = logftxt.CallerFormatLong
-				test(cfg, logf.Int("a", 1), "a=1 @ /a/b/c.go:42", func(e *logf.Entry) {
+				test(t, cfg, logf.Int("a", 1), "a=1 @ /a/b/c.go:42", func(e *logf.Entry) {
 					e.Caller.File = "/a/b/c.go"
 					e.Caller.Line = 42
 					e.Caller.Specified = true
@@ -367,7 +374,7 @@ func TestEncoder(tt *testing.T) {
 			t.Run("Long", func(t tst.Test) {
 				cfg := logftxt.Config{}
 				cfg.Values.Error.Format = logftxt.ErrorFormatLong
-				test(cfg, logf.NamedError("e", mockError{}), "e={{detailed error}}")
+				test(t, cfg, logf.NamedError("e", mockError{}), "e={{detailed error}}")
 			})
 		})
 	})
