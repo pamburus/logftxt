@@ -7,7 +7,6 @@ import (
 
 	"github.com/ssgreg/logf"
 
-	"github.com/pamburus/logftxt/internal/pkg/env"
 	"github.com/pamburus/logftxt/internal/pkg/tty"
 )
 
@@ -15,24 +14,12 @@ import (
 // optional custom configuration.
 func NewAppender(w io.Writer, options ...AppenderOption) logf.Appender {
 	o := defaultAppenderOptions().With(options)
-	if o.color == ColorAuto {
-		switch env.ColorSetting(o.env) {
-		case env.ColorAlways:
-			o.color = ColorAlways
-		case env.ColorNever:
-			o.color = ColorNever
-		}
-	}
+	o.color = o.color.resolved(o.env)
 
-	switch o.color {
-	case ColorAlways:
-		o.encoderOptions.color = true
-	case ColorNever:
-		o.encoderOptions.color = false
-	default:
+	if o.color == ColorAuto {
 		if f, ok := w.(*os.File); ok {
 			if tty.EnableSeqTTY(f, true) {
-				o.encoderOptions.color = true
+				o.color = ColorAlways
 			}
 		}
 	}

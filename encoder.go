@@ -56,7 +56,7 @@ func (e *encoder) getEntryEncoder() *entryEncoder {
 			nil,
 			logf.NewCache(100),
 			0,
-			newStyler().Disabled(!e.color),
+			newStyler().Disabled(e.color == ColorNever),
 		}
 	}
 }
@@ -74,8 +74,10 @@ func (e *encoder) putEntryEncoder(ee *entryEncoder) {
 func (e *encoder) setup(buf *logf.Buffer, ts time.Time) {
 	var messages []logf.Entry
 
+	setupContext := domain{e.env, e.fs}
+
 	for i := len(e.provideConfig) - 1; i >= 0; i-- {
-		cfg, err := e.provideConfig[i]()
+		cfg, err := e.provideConfig[i](setupContext)
 		if err != nil {
 			messages = append(messages, logf.Entry{
 				Text:   "failed to load configuration file so using previous defaults",
@@ -95,7 +97,7 @@ func (e *encoder) setup(buf *logf.Buffer, ts time.Time) {
 		e.provideTheme = append([]ThemeProvideFunc{e.cfg.Theme.fn()}, e.provideTheme...)
 	}
 	for i := len(e.provideTheme) - 1; i >= 0; i-- {
-		theme, err := e.provideTheme[i]()
+		theme, err := e.provideTheme[i](setupContext)
 		if err != nil {
 			messages = append(messages, logf.Entry{
 				Text:   "failed to setup preferred theme so using previous defaults",
@@ -1193,6 +1195,8 @@ func (e *objectEncoder) encode(encodeField func()) {
 // ---
 
 func newEncoder(options encoderOptions) *encoder {
+	options.color = options.color.resolved(options.env)
+
 	return &encoder{
 		options,
 		nil,

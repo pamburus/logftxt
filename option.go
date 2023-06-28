@@ -1,6 +1,8 @@
 package logftxt
 
-import "os"
+import (
+	"github.com/pamburus/logftxt/internal/pkg/env"
+)
 
 // ---
 
@@ -19,12 +21,20 @@ func (s ColorSetting) toAppenderOptions(o *appenderOptions) {
 }
 
 func (s ColorSetting) toEncoderOptions(o *encoderOptions) {
-	switch s {
-	case ColorAlways:
-		o.color = true
-	case ColorNever:
-		o.color = false
+	o.color = s
+}
+
+func (s ColorSetting) resolved(e Environment) ColorSetting {
+	if s == ColorAuto {
+		switch env.ColorSetting(e) {
+		case env.ColorAlways:
+			s = ColorAlways
+		case env.ColorNever:
+			s = ColorNever
+		}
 	}
+
+	return s
 }
 
 // ---
@@ -59,15 +69,11 @@ func (v PoolSizeLimit) toAppenderOptions(o *appenderOptions) {
 
 func defaultAppenderOptions() appenderOptions {
 	return appenderOptions{
-		ColorAuto,
-		os.LookupEnv,
 		defaultEncoderOptions(),
 	}
 }
 
 type appenderOptions struct {
-	color ColorSetting
-	env   Environment
 	encoderOptions
 }
 
@@ -83,6 +89,7 @@ func (o appenderOptions) With(other []AppenderOption) appenderOptions {
 
 func defaultEncoderOptions() encoderOptions {
 	return encoderOptions{
+		domain:        defaultDomain(),
 		provideConfig: []ConfigProvideFunc{ConfigFromEnvironment()},
 		provideTheme:  []ThemeProvideFunc{ThemeFromEnvironment().fn()},
 		poolSizeLimit: 8,
@@ -90,9 +97,10 @@ func defaultEncoderOptions() encoderOptions {
 }
 
 type encoderOptions struct {
+	domain
+	color           ColorSetting
 	provideConfig   []ConfigProvideFunc
 	provideTheme    []ThemeProvideFunc
-	color           bool
 	encodeCaller    CallerEncodeFunc
 	encodeError     ErrorEncodeFunc
 	encodeTimestamp TimestampEncodeFunc

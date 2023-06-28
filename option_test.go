@@ -35,12 +35,32 @@ func TestOptions(tt *testing.T) {
 	t.Expect(ao(ConfigFromDefaultPath()).provideConfig).ToNot(tst.BeZero())
 	t.Expect(ao(DefaultTheme()).provideTheme).ToNot(tst.BeZero())
 	t.Expect(ao(DefaultTheme()).provideTheme).ToNot(tst.BeZero())
+	t.Expect(NewThemeRef("").Load()).To(tst.BeZero(), tst.Equal(nil))
 	t.Expect(ao(NewThemeRef("")).provideTheme).ToNot(tst.BeZero())
 	t.Expect(ao(NewThemeRef("")).provideTheme).ToNot(tst.BeZero())
-	t.Expect(ao(NewThemeRef("").fn()).provideTheme).ToNot(tst.BeZero())
-	t.Expect(ao(NewThemeRef("").fn()).provideTheme).ToNot(tst.BeZero())
+	t.Expect(eo(NewThemeRef("").fn()).provideTheme).ToNot(tst.BeZero())
+	t.Expect(eo(NewThemeRef("").fn()).provideTheme).ToNot(tst.BeZero())
+	t.Expect(ao(ThemeFromEnvironment()).provideTheme).ToNot(tst.BeZero())
+	t.Expect(ao(ThemeFromEnvironment()).provideTheme).ToNot(tst.BeZero())
+	t.Expect(ao(ThemeFromEnvironment().fn()).provideTheme).ToNot(tst.BeZero())
+	t.Expect(ao(ThemeFromEnvironment().fn()).provideTheme).ToNot(tst.BeZero())
+	t.Expect(eo(ThemeFromEnvironment()).provideTheme).ToNot(tst.BeZero())
+	t.Expect(eo(ThemeFromEnvironment()).provideTheme).ToNot(tst.BeZero())
+	t.Expect(eo(ThemeFromEnvironment().fn()).provideTheme).ToNot(tst.BeZero())
+	t.Expect(eo(ThemeFromEnvironment().fn()).provideTheme).ToNot(tst.BeZero())
+	t.Expect(
+		eo(
+			ThemeFromEnvironment(),
+		).provideTheme[0](
+			domain{env: Environment(mockEnv{"LOGFTXT_THEME": "@default"}.lookup)},
+		),
+	).ToSucceed().AndResult().ToNot(tst.BeZero())
 	t.Expect(defaultEncoderOptions()).ToNot(tst.BeZero())
 	t.Expect(defaultAppenderOptions()).ToNot(tst.BeZero())
+	t.Expect(DefaultDomain().Environment()).ToNotEqual(nil)
+	t.Expect(DefaultDomain().FS()).ToNotEqual(nil)
+	t.Expect(ao(WithFS(SystemFS())).fs).ToNot(tst.BeZero())
+	t.Expect(eo(WithFS(SystemFS())).fs).ToNot(tst.BeZero())
 }
 
 func TestTimeLayout(tt *testing.T) {
@@ -51,4 +71,14 @@ func TestTimeLayout(tt *testing.T) {
 	).ToEqual(
 		"2020-01-02T03:04:05.000000006Z",
 	)
+}
+
+// ---
+
+type mockEnv map[string]string
+
+func (e mockEnv) lookup(key string) (string, bool) {
+	result, ok := e[key]
+
+	return result, ok
 }

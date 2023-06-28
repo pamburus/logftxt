@@ -24,18 +24,10 @@ import (
 // the file will be searched in `~/.config/logftxt/themes` folder.
 //
 // To search file relatively current working directory instead, add explicit `./` or `../` prefix.
-func LoadTheme(filename string, opts ...fsOption) (*Theme, error) {
-	o := fsOptions{}.With(opts).WithDefaults()
+func LoadTheme(filename string, opts ...domainOption) (*Theme, error) {
+	o := defaultDomain().with(opts)
 
-	f, err := o.fs.Open(filename) //nolint:gosec
-	if err != nil {
-		return nil, err
-	}
-	defer func() {
-		_ = f.Close()
-	}()
-
-	return ReadTheme(f)
+	return loadTheme(filename, o.fs)
 }
 
 // ReadTheme reads theme configuration from the given reader.
@@ -106,7 +98,7 @@ func (t *Theme) toAppenderOptions(o *appenderOptions) {
 }
 
 func (t *Theme) fn() ThemeProvideFunc {
-	return func() (*Theme, error) {
+	return func(Domain) (*Theme, error) {
 		return t, nil
 	}
 }
@@ -117,7 +109,7 @@ func (t *Theme) fn() ThemeProvideFunc {
 //
 // ThemeProvideFunc can return `nil` theme and `nil` error
 // meaning there is nothing to provide from its source.
-type ThemeProvideFunc func() (*Theme, error)
+type ThemeProvideFunc func(Domain) (*Theme, error)
 
 func (f ThemeProvideFunc) toEncoderOptions(o *encoderOptions) {
 	o.provideTheme = append(o.provideTheme, f)
@@ -130,20 +122,41 @@ func (f ThemeProvideFunc) toAppenderOptions(o *appenderOptions) {
 // ---
 
 // ThemeFromEnvironment returns a ThemeRef that references some theme as defined by the environment variables.
-func ThemeFromEnvironment(opts ...fsEnvOption) ThemeRef {
-	o := defaultFSEnvOptions().With(opts)
+func ThemeFromEnvironment(opts ...domainOption) ThemeEnvironmentRef {
+	return ThemeEnvironmentRef{opts}
+}
 
-	if v, ok := env.Theme(o.env); ok {
-		return NewThemeRef(v, WithFS(o.fs))
+// ---
+
+// ThemeEnvironmentRef is an option that requests to load theme specified by environment variables.
+type ThemeEnvironmentRef struct {
+	opts []domainOption
+}
+
+func (v ThemeEnvironmentRef) toEncoderOptions(o *encoderOptions) {
+	o.provideTheme = append(o.provideTheme, v.fn())
+}
+
+func (v ThemeEnvironmentRef) toAppenderOptions(o *appenderOptions) {
+	o.provideTheme = append(o.provideTheme, v.fn())
+}
+
+func (v ThemeEnvironmentRef) fn() ThemeProvideFunc {
+	return func(domain Domain) (*Theme, error) {
+		domain = NewDomain(domain, v.opts...)
+
+		if v, ok := env.Theme(domain.Environment()); ok {
+			return NewThemeRef(v, WithFS(domain.FS())).Load()
+		}
+
+		return nil, nil
 	}
-
-	return NewThemeRef("")
 }
 
 // ---
 
 // NewThemeRef constructs a new theme reference with the given name and options.
-func NewThemeRef(name string, opts ...ThemeRefOption) ThemeRef {
+func NewThemeRef(name string, opts ...domainOption) ThemeRef {
 	return ThemeRef{name, opts}
 }
 
@@ -153,8 +166,8 @@ func NewThemeRef(name string, opts ...ThemeRefOption) ThemeRef {
 // Relative path starting with `./` or `../` will request locating the file relatively to the current working directory.
 // Relative path not starting with `./` or `../` will request locating the file relatively to `~/.config/logftxt/themes` directory.
 type ThemeRef struct {
-	name string
-	opts []fsOption
+	name    string
+	options []domainOption
 }
 
 // MarshalText implements encoding.TextMarshaler interface.
@@ -184,7 +197,7 @@ func (v ThemeRef) Load() (*Theme, error) {
 		return LoadBuiltInTheme(v.name[1:])
 	}
 
-	return LoadTheme(v.name, v.opts...)
+	return loadTheme(v.name, defaultDomain().with(v.options).fs)
 }
 
 func (v ThemeRef) toEncoderOptions(o *encoderOptions) {
@@ -196,13 +209,24 @@ func (v ThemeRef) toAppenderOptions(o *appenderOptions) {
 }
 
 func (v ThemeRef) fn() ThemeProvideFunc {
-	return ThemeProvideFunc(v.Load)
+	return ThemeProvideFunc(func(Domain) (*Theme, error) {
+		return v.Load()
+	})
 }
 
 // ---
 
-// ThemeRefOption is a common interface for optional parameters that can be accepted in NewThemeRef.
-type ThemeRefOption = fsOption
+func loadTheme(filename string, fs FS) (*Theme, error) {
+	f, err := fs.Open(filename) //nolint:gosec
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		_ = f.Close()
+	}()
+
+	return ReadTheme(f)
+}
 
 // ---
 

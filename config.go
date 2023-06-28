@@ -14,22 +14,10 @@ import (
 )
 
 // LoadConfig loads configuration file with the given filename.
-func LoadConfig(filename string, opts ...fsOption) (*Config, error) {
-	o := fsOptions{}.With(opts).WithDefaults()
+func LoadConfig(filename string, opts ...domainOption) (*Config, error) {
+	o := defaultDomain().with(opts)
 
-	f, err := o.fs.Open(filename) //nolint:gosec
-	if err != nil {
-		if os.IsNotExist(err) {
-			return nil, ErrFileNotFound{filename, err}
-		}
-
-		return nil, fmt.Errorf("failed to open file %q: %w", filename, err)
-	}
-	defer func() {
-		_ = f.Close()
-	}()
-
-	return ReadConfig(f)
+	return loadConfig(filename, o.fs)
 }
 
 // ReadConfig loads configuration from the given reader.
@@ -111,7 +99,7 @@ func (c Config) toAppenderOptions(oo *appenderOptions) {
 }
 
 func (c Config) fn() ConfigProvideFunc {
-	return func() (*Config, error) {
+	return func(Domain) (*Config, error) {
 		return &c, nil
 	}
 }
@@ -122,12 +110,11 @@ func (c Config) fn() ConfigProvideFunc {
 // gets configuration filename from environment variable `LOGFTXT_CONFIG`.
 // In case there is no such environment variable, `nil` is returned
 // allowing to fallback to other configuration sources.
-func ConfigFromEnvironment(opts ...fsEnvOption) ConfigProvideFunc {
-	o := defaultFSEnvOptions().With(opts)
-
-	return func() (*Config, error) {
-		if configPath, ok := env.Config(o.env); ok {
-			return LoadConfig(configPath, WithFS(o.fs))
+func ConfigFromEnvironment(opts ...domainOption) ConfigProvideFunc {
+	return func(domain Domain) (*Config, error) {
+		domain = NewDomain(domain, opts...)
+		if configPath, ok := env.Config(domain.Environment()); ok {
+			return loadConfig(configPath, domain.FS())
 		}
 
 		return nil, nil
@@ -138,9 +125,9 @@ func ConfigFromEnvironment(opts ...fsEnvOption) ConfigProvideFunc {
 // load configuration from default path that is `~/.config/logftxt/config.yml`.
 // In case there is no such file, `nil` is returned
 // allowing to fallback to other configuration sources.
-func ConfigFromDefaultPath(opts ...fsOption) ConfigProvideFunc {
-	return func() (*Config, error) {
-		return LoadConfig("config.yml", opts...)
+func ConfigFromDefaultPath(opts ...domainOption) ConfigProvideFunc {
+	return func(domain Domain) (*Config, error) {
+		return loadConfig("config.yml", NewDomain(domain, opts...).FS())
 	}
 }
 
@@ -149,7 +136,7 @@ func ConfigFromDefaultPath(opts ...fsOption) ConfigProvideFunc {
 // ConfigProvideFunc is a function that provides Config when called.
 // ConfigProvideFunc can return `nil` configuration and `nil` error
 // in case there is no any configuration found at the corresponding source.
-type ConfigProvideFunc func() (*Config, error)
+type ConfigProvideFunc func(Domain) (*Config, error)
 
 func (f ConfigProvideFunc) toEncoderOptions(oo *encoderOptions) {
 	oo.provideConfig = append(oo.provideConfig, f)
@@ -234,6 +221,24 @@ func (v ErrorFormat) Validate() error {
 	}
 
 	return nil
+}
+
+// ---
+
+func loadConfig(filename string, fs FS) (*Config, error) {
+	f, err := fs.Open(filename) //nolint:gosec
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil, ErrFileNotFound{filename, err}
+		}
+
+		return nil, fmt.Errorf("failed to open file %q: %w", filename, err)
+	}
+	defer func() {
+		_ = f.Close()
+	}()
+
+	return ReadConfig(f)
 }
 
 // ---

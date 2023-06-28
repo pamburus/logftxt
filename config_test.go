@@ -33,16 +33,18 @@ func TestConfig(tt *testing.T) {
 		t.Expect(LoadConfig("./_.yml")).ToFailWith(ErrFileNotFound{})
 		t.Expect(LoadConfig("./config.go")).ToFail()
 
-		t.Expect(ConfigFromDefaultPath(WithFS(mockFS{openErr: errOpen}))()).ToFailWith(errOpen)
-		t.Expect(ConfigFromDefaultPath(WithFS(mockFS{openErr: ErrFileNotFound{}}))()).ToFailWith(ErrFileNotFound{})
+		t.Expect(ConfigFromDefaultPath(WithFS(mockFS{openErr: errOpen}))(domain{})).ToFailWith(errOpen)
+		t.Expect(ConfigFromDefaultPath()(domain{fs: mockFS{openErr: errOpen}})).ToFailWith(errOpen)
+		t.Expect(ConfigFromDefaultPath(WithFS(mockFS{openErr: ErrFileNotFound{}}))(domain{})).ToFailWith(ErrFileNotFound{})
+		t.Expect(ConfigFromDefaultPath()(domain{fs: mockFS{openErr: ErrFileNotFound{}}})).ToFailWith(ErrFileNotFound{})
 		t.Expect(ConfigFromDefaultPath(
-			WithFS(mockFS{file: &mockFile{bytes.NewBuffer(mockConfigData)}}))(),
+			WithFS(mockFS{file: &mockFile{bytes.NewBuffer(mockConfigData)}}))(domain{}),
 		).ToSucceed()
 		t.Expect(
 			ConfigFromEnvironment(
 				envConfig("a.yml"),
 				WithFS(mockFS{file: &mockFile{bytes.NewBuffer(mockConfigData)}}),
-			)(),
+			)(domain{}),
 		).ToSucceed()
 	})
 
