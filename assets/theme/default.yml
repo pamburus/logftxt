@@ -29,16 +29,16 @@ theme:
             foreground: cyan
       warning:
         text: 'WRN'
-        inner:
+        outer:
           style:
             foreground: yellow
-            modes: [bold]
+            modes: [reversed]
       error:
         text: 'ERR'
-        inner:
+        outer:
           style:
             foreground: bright-red
-            modes: [bold]
+            modes: [reversed]
       unknown:
         text: '(?)'
         inner:
