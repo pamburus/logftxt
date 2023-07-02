@@ -83,6 +83,20 @@ func main() {
 ![GitHub-Mark-Light](examples/hello/assets/screenshots/hello-light-fancy.png#gh-light-mode-only)
 ![GitHub-Mark-Dark ](examples/hello/assets/screenshots/hello-dark-fancy.png#gh-dark-mode-only)
 
+
+### Used terminal color schemes
+
+#### iTerm2
+* [One Dark Neo](https://gist.github.com/pamburus/0ad130f2af9ab03a97f2a9f7b4f18c68/746ca7103726d43b767f2111799d3cb5ec08adbb)
+* Built-in "Light Background" color scheme
+
+#### Alacritty
+* [One Dark Neo](https://gist.github.com/pamburus/e27ebf60aa17d126f5c879f06112edd6/a1e66d34a65b883f1cb8ec28820cc0c53233e3aa#file-alacritty-yml-L904)
+  * Note: It is recommended to use `draw_bold_text_with_bright_colors: true` setting
+* [Light](https://gist.github.com/pamburus/e27ebf60aa17d126f5c879f06112edd6/a1e66d34a65b883f1cb8ec28820cc0c53233e3aa#file-alacritty-yml-L875)
+  * Note: It is recommended to use `draw_bold_text_with_bright_colors: false` setting
+
+
 [doc-img]: https://pkg.go.dev/badge/github.com/pamburus/logftxt
 [doc]: https://pkg.go.dev/github.com/pamburus/logftxt
 [ci-img]: https://github.com/pamburus/logf-x/actions/workflows/ci.yml/badge.svg

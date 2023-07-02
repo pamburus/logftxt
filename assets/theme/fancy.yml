@@ -29,16 +29,20 @@ theme:
             foreground: cyan
       warning:
         text: 'WRN'
-        inner:
+        outer:
+          prefix: '|'
+          suffix: '|'
           style:
             foreground: yellow
-            modes: [bold]
+            modes: [reversed]
       error:
         text: 'ERR'
-        inner:
+        outer:
+          prefix: '|'
+          suffix: '|'
           style:
             foreground: bright-red
-            modes: [bold]
+            modes: [reversed]
       unknown:
         text: '(?)'
         inner:
