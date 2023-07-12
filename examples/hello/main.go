@@ -23,6 +23,7 @@ func main() {
 
 	// Do some logging.
 	logger.Info("runtime info", logf.Int("cpu-count", runtime.NumCPU()))
+	logger.Info("test array", logf.Any("ss", []string{"cpu-count", "abc"}))
 
 	if info, ok := debug.ReadBuildInfo(); ok {
 		logger.Debug("build info", logf.String("go-version", info.GoVersion), logf.String("path", info.Path))
