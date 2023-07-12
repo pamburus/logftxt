@@ -480,35 +480,38 @@ func (e *entryEncoder) EncodeTypeAny(v interface{}) {
 		e.EncodeTypeError(v)
 
 	default:
-		switch reflect.TypeOf(v).Kind() {
+		rv := reflect.ValueOf(v)
+		switch rv.Type().Kind() {
 		case reflect.String:
-			e.EncodeTypeString(reflect.ValueOf(v).String())
+			e.EncodeTypeString(rv.String())
 		case reflect.Bool:
-			e.EncodeTypeBool(reflect.ValueOf(v).Bool())
+			e.EncodeTypeBool(rv.Bool())
 		case reflect.Int:
-			e.EncodeTypeInt64(reflect.ValueOf(v).Int())
+			e.EncodeTypeInt64(rv.Int())
 		case reflect.Int8:
-			e.EncodeTypeInt8(int8(reflect.ValueOf(v).Int()))
+			e.EncodeTypeInt8(int8(rv.Int()))
 		case reflect.Int16:
-			e.EncodeTypeInt16(int16(reflect.ValueOf(v).Int()))
+			e.EncodeTypeInt16(int16(rv.Int()))
 		case reflect.Int32:
-			e.EncodeTypeInt32(int32(reflect.ValueOf(v).Int()))
+			e.EncodeTypeInt32(int32(rv.Int()))
 		case reflect.Int64:
-			e.EncodeTypeInt64(reflect.ValueOf(v).Int())
+			e.EncodeTypeInt64(rv.Int())
 		case reflect.Uint:
-			e.EncodeTypeUint64(reflect.ValueOf(v).Uint())
+			e.EncodeTypeUint64(rv.Uint())
 		case reflect.Uint8:
-			e.EncodeTypeUint8(uint8(reflect.ValueOf(v).Uint()))
+			e.EncodeTypeUint8(uint8(rv.Uint()))
 		case reflect.Uint16:
-			e.EncodeTypeUint16(uint16(reflect.ValueOf(v).Uint()))
+			e.EncodeTypeUint16(uint16(rv.Uint()))
 		case reflect.Uint32:
-			e.EncodeTypeUint32(uint32(reflect.ValueOf(v).Uint()))
+			e.EncodeTypeUint32(uint32(rv.Uint()))
 		case reflect.Uint64:
-			e.EncodeTypeUint64(reflect.ValueOf(v).Uint())
+			e.EncodeTypeUint64(rv.Uint())
 		case reflect.Float32:
-			e.EncodeTypeFloat32(float32(reflect.ValueOf(v).Float()))
+			e.EncodeTypeFloat32(float32(rv.Float()))
 		case reflect.Float64:
-			e.EncodeTypeFloat64(reflect.ValueOf(v).Float())
+			e.EncodeTypeFloat64(rv.Float())
+		case reflect.Slice, reflect.Array:
+			e.EncodeTypeArray(anyArray{rv})
 		default:
 			_, _ = fmt.Fprintf(e.buf, "%v", v)
 		}
@@ -1190,6 +1193,20 @@ func (e *objectEncoder) encode(encodeField func()) {
 	}
 	encodeField()
 	e.n++
+}
+
+// ---
+
+type anyArray struct {
+	v reflect.Value
+}
+
+func (a anyArray) EncodeLogfArray(enc logf.TypeEncoder) error {
+	for i := 0; i != a.v.Len(); i++ {
+		enc.EncodeTypeAny(a.v.Index(i).Interface())
+	}
+
+	return nil
 }
 
 // ---

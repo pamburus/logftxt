@@ -183,6 +183,8 @@ func TestEncoder(tt *testing.T) {
 			t.Run("Array", test("a", newMockArray(logf.TypeEncoder.EncodeTypeBool, false, true), array("false", "true")))
 			t.Run("Object", test("a", newMockObject(logf.Bool("b", true)), object("b", "true")))
 			t.Run("Stringer", test("a", mockStringer("oue"), "'oue'"))
+			t.Run("AnySlice", test("a", []newTypeString{"2", "42"}, array("'2'", "'42'")))
+			t.Run("AnyArray", test("a", [2]newTypeString{"2", "42"}, array("'2'", "'42'")))
 
 			t.Run("NewType", func(t tst.Test) {
 				t.Run("Bool", test("a", newTypeBool(true), "true"))
