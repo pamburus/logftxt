@@ -21,16 +21,16 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: '1.21'
-      - uses: actions/cache@v4
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
+          cache-dependency-path: |
+            go.sum
+            test/go.sum
       - name: Lint .
         uses: golangci/golangci-lint-action@v3
         with:
-          version: v1.54
+          version: v1.55
+          # Disable caching as a workaround for https://github.com/golangci/golangci-lint-action/issues/135.
+          # The line can be removed once the golangci-lint issue is resolved.
+          skip-pkg-cache: true
       - name: Lint other modules
         run: go list -m -f '{{.Dir}}/...' | golangci-lint run
 
@@ -45,12 +45,6 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go }}
-      - uses: actions/cache@v4
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
       - name: Test
         run: go list -m -f '{{.Dir}}/...' | xargs go test -race -coverprofile=cover.out -coverpkg=./...
 
