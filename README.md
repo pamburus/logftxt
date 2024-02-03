@@ -101,5 +101,5 @@ func main() {
 [doc]: https://pkg.go.dev/github.com/pamburus/logftxt
 [ci-img]: https://github.com/pamburus/logf-x/actions/workflows/ci.yml/badge.svg
 [ci]: https://github.com/pamburus/logf-x/actions/workflows/ci.yml
-[cov-img]: https://codecov.io/gh/pamburus/logf-x/logftxt/branch/main/graph/badge.svg
+[cov-img]: https://codecov.io/gh/pamburus/logf-x/logftxt/branch/main/graph/badge.svg?token=YHWG3WZG7C
 [cov]: https://codecov.io/gh/pamburus/logf-x/logftxt
