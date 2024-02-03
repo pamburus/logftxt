@@ -99,7 +99,7 @@ func main() {
 
 [doc-img]: https://pkg.go.dev/badge/github.com/pamburus/logftxt
 [doc]: https://pkg.go.dev/github.com/pamburus/logftxt
-[ci-img]: https://github.com/pamburus/logf-x/actions/workflows/ci.yml/badge.svg
-[ci]: https://github.com/pamburus/logf-x/actions/workflows/ci.yml
-[cov-img]: https://codecov.io/gh/pamburus/logf-x/logftxt/branch/main/graph/badge.svg?token=YHWG3WZG7C
-[cov]: https://codecov.io/gh/pamburus/logf-x/logftxt
+[ci-img]: https://github.com/pamburus/logftxt/actions/workflows/ci.yml/badge.svg
+[ci]: https://github.com/pamburus/logftxt/actions/workflows/ci.yml
+[cov-img]: https://codecov.io/gh/pamburus/logftxt/logftxt/branch/main/graph/badge.svg?token=YHWG3WZG7C
+[cov]: https://codecov.io/gh/pamburus/logftxt/logftxt
