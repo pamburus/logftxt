@@ -7,7 +7,7 @@ It can be used as a more flexible replacement for [logftext](https://github.com/
 
 * Highlighting of log levels, messages, field names, delimiters, arrays, objects, strings, numbers, errors, durations, etc.
 * Built-in themes and external [custom](#changing-theme) themes.
-* Built-in themes [@default](assets/theme/default.yml) and [@fancy](assets/theme/fancy.yml) have good support both for [dark](examples/hello/assets/screenshots/hello-dark-fancy.png#gh-dark-mode-only) and [light](examples/hello/assets/screenshots/hello-light-fancy.png#gh-light-mode-only) terminals.
+* Built-in themes [@default](assets/theme/default.yml) and [@fancy](assets/theme/fancy.yml) have good support both for [dark](examples/hello/assets/screenshots/hello-dark-fancy.png) and [light](examples/hello/assets/screenshots/hello-light-fancy.png) terminals.
 * Built-in [configuration file](assets/config.yml) that can be easily replaced with [custom](#changing-configuration) configuration file.
 
 ### Changing configuration
