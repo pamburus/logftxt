@@ -11,8 +11,8 @@ require (
 )
 
 require (
-	github.com/pamburus/go-ansi-esc v0.4.1 // indirect
-	github.com/veggiemonk/strcase v0.0.0-20230613122707-49905e811ba0 // indirect
-	golang.org/x/sys v0.8.0 // indirect
-	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
+	github.com/pamburus/go-ansi-esc v0.4.2 // indirect
+	github.com/veggiemonk/strcase v0.0.0-20240108101409-9f441287a9a9 // indirect
+	golang.org/x/sys v0.16.0 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

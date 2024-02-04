@@ -13,74 +13,60 @@ import (
 func BenchmarkEncoder(b *testing.B) {
 	buf := logf.NewBufferWithCapacity(1024 * 1024)
 
+	testOne := func(b *testing.B, encoder logf.Encoder, hook func(*logf.Entry)) {
+		entry := testEntryTemplate
+
+		b.ReportAllocs()
+		b.ResetTimer()
+
+		for i := 0; i != b.N; i++ {
+			buf.Reset()
+			hook(&entry)
+			err := encoder.Encode(buf, entry)
+			if err != nil {
+				b.Fatal(err)
+			}
+		}
+	}
+
+	testSameAndNew := func(encoder logf.Encoder) func(b *testing.B) {
+		return func(b *testing.B) {
+			b.Run("SameLoggerID", func(b *testing.B) {
+				testOne(b, encoder, func(entry *logf.Entry) {})
+			})
+			b.Run("NewLoggerID", func(b *testing.B) {
+				testOne(b, encoder, func(entry *logf.Entry) {
+					entry.LoggerID++
+				})
+			})
+		}
+	}
+
 	b.Run("logftxt", func(b *testing.B) {
-		b.Run("same-logger-id", func(b *testing.B) {
-			encoder := logftxt.NewEncoder()
+		options := []logftxt.EncoderOption{
+			logftxt.CallerShort(),
+			logftxt.NewThemeRef("@legacy"),
+		}
 
-			b.ReportAllocs()
-			b.ResetTimer()
-
-			for i := 0; i != b.N; i++ {
-				buf.Reset()
-				err := encoder.Encode(buf, testEntry)
-				if err != nil {
-					b.Fatal(err)
-				}
-			}
-		})
-		b.Run("new-logger-id", func(b *testing.B) {
-			encoder := logftxt.NewEncoder()
-
-			b.ReportAllocs()
-			b.ResetTimer()
-
-			for i := 0; i != b.N; i++ {
-				buf.Reset()
-				testEntry.LoggerID++
-				err := encoder.Encode(buf, testEntry)
-				if err != nil {
-					b.Fatal(err)
-				}
-			}
-		})
+		b.Run("Color", testSameAndNew(logftxt.NewEncoder(append(options, logftxt.ColorAlways)...)))
+		b.Run("NoColor", testSameAndNew(logftxt.NewEncoder(append(options, logftxt.ColorNever)...)))
 	})
 
 	b.Run("logftext", func(b *testing.B) {
-		b.Run("same-logger-id", func(b *testing.B) {
-			encoder := logftext.NewEncoder.Default()
-
-			b.ReportAllocs()
-			b.ResetTimer()
-
-			for i := 0; i != b.N; i++ {
-				buf.Reset()
-				err := encoder.Encode(buf, testEntry)
-				if err != nil {
-					b.Fatal(err)
-				}
+		config := func(noColor bool) logftext.EncoderConfig {
+			return logftext.EncoderConfig{
+				NoColor: &noColor,
 			}
-		})
-		b.Run("new-logger-id", func(b *testing.B) {
-			encoder := logftext.NewEncoder.Default()
+		}
 
-			b.ReportAllocs()
-			b.ResetTimer()
-
-			for i := 0; i != b.N; i++ {
-				buf.Reset()
-				testEntry.LoggerID++
-				err := encoder.Encode(buf, testEntry)
-				if err != nil {
-					b.Fatal(err)
-				}
-			}
-		})
+		b.Run("Color", testSameAndNew(logftext.NewEncoder(config(false))))
+		b.Run("NoColor", testSameAndNew(logftext.NewEncoder(config(true))))
 	})
 }
 
 // ---
 
-var testEntry = logf.Entry{
+var testEntryTemplate = logf.Entry{
 	LoggerName: "some.test.logger",
 	DerivedFields: []logf.Field{
 		logf.String("derived-string-field-1", "string-value-1"),
