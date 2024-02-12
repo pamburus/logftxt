@@ -1,6 +1,6 @@
 module github.com/pamburus/logftxt
 
-go 1.20
+go 1.21
 
 require (
 	github.com/pamburus/go-ansi-esc v0.4.2
