@@ -38,7 +38,7 @@ func TestEncoder(tt *testing.T) {
 	}
 
 	t.Run("Level", func(t tst.Test) {
-		enc := logftxt.NewEncoder(config, logftxt.ColorNever, theme, logftxt.DefaultConfig())
+		enc := logftxt.NewEncoder(config, logftxt.ColorNever, theme)
 
 		t.Run("BelowDebug", func(t tst.Test) {
 			buf := logf.NewBuffer()
@@ -123,7 +123,7 @@ func TestEncoder(tt *testing.T) {
 			Caller: caller,
 		}
 
-		enc := logftxt.NewEncoder(config, logftxt.ColorAlways, theme, logftxt.DefaultConfig())
+		enc := logftxt.NewEncoder(config, logftxt.ColorAlways, theme)
 
 		buf := logf.NewBuffer()
 		t.Expect(enc.Encode(buf, testEntry)).ToSucceed()
@@ -480,9 +480,15 @@ func TestEncoder(tt *testing.T) {
 	})
 
 	t.Run("ConfigProvideError", func(t tst.Test) {
-		enc := logftxt.NewEncoder(theme, envColor(false), logftxt.FlattenObjects(true), logftxt.ConfigProvideFunc(func(logftxt.Domain) (*logftxt.Config, error) {
-			return nil, errors.New("cperr")
-		}))
+		enc := logftxt.NewEncoder(
+			config,
+			theme,
+			envColor(false),
+			logftxt.FlattenObjects(true),
+			logftxt.ConfigProvideFunc(func(logftxt.Domain) (*logftxt.Config, error) {
+				return nil, errors.New("cperr")
+			}),
+		)
 
 		buf := logf.NewBuffer()
 
@@ -497,9 +503,14 @@ func TestEncoder(tt *testing.T) {
 		theme, err := theme.Load()
 		t.Expect(err).ToNot(tst.HaveOccurred())
 
-		enc := logftxt.NewEncoder(theme, envColor(false), logftxt.ThemeProvideFunc(func(logftxt.Domain) (*logftxt.Theme, error) {
-			return nil, errors.New("tperr")
-		}))
+		enc := logftxt.NewEncoder(
+			config,
+			theme,
+			envColor(false),
+			logftxt.ThemeProvideFunc(func(logftxt.Domain) (*logftxt.Theme, error) {
+				return nil, errors.New("tperr")
+			}),
+		)
 
 		buf := logf.NewBuffer()
 
