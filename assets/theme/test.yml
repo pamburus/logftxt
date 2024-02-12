@@ -11,7 +11,7 @@ theme:
     timestamp:
       outer:
         style:
-          modes: [faint]
+          modes: [+faint]
     level:
       all:
         outer:
@@ -37,25 +37,20 @@ theme:
         inner:
           style:
             foreground: red
-      unknown:
-        text: '(?)'
-        inner:
-          style:
-            foreground: default
     logger:
       outer:
         suffix: ':'
         style:
-          modes: [faint]
+          modes: [+faint]
     message:
       inner:
         style:
-          modes: [bold]
+          modes: [+bold]
     field:
-      inner:
+      separator:
+        text: '='
         style:
-          modes: [faint]
-      separator: '='
+          modes: [+faint]
     key:
       outer:
         style:
@@ -64,7 +59,7 @@ theme:
       outer:
         prefix: '@ '
         style:
-          modes: [italic,faint]
+          modes: [+italic,+faint]
     types:
       array:
         outer:
@@ -75,7 +70,8 @@ theme:
         inner:
           prefix: ''
           suffix: ''
-        separator: ','
+        separator:
+          text: ','
       object:
         outer:
           prefix: '{'
@@ -85,7 +81,8 @@ theme:
         inner:
           prefix: ' '
           suffix: ' '
-        separator: ' '
+        separator:
+          text: ' '
       string:
         outer:
           prefix: ''''

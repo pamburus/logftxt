@@ -249,10 +249,18 @@ func (*itemTimestamp) encode(e *entryEncoder) {
 type itemLevel struct{}
 
 func (*itemLevel) encode(e *entryEncoder) {
-	level, ok := e.theme.fmt.Level[e.entry.Level]
-	if !ok {
-		level = e.theme.fmt.UnknownLevel
+	// assert that logf.LevelDebug value is greater of equal than logf.LevelError value
+	_ = [logf.LevelDebug - logf.LevelError]struct{}{}
+
+	i := e.entry.Level
+	if i < logf.LevelError {
+		i = logf.LevelError
 	}
+	if i > logf.LevelDebug {
+		i = logf.LevelDebug
+	}
+
+	level := e.theme.fmt.Level[i]
 
 	level.encode(e, func() {
 		e.buf.AppendString(level.text)
@@ -329,7 +337,7 @@ func (*itemFields) encode(e *entryEncoder) {
 type fmtItem struct {
 	outer     format
 	inner     format
-	separator string
+	separator styledText
 	text      string
 }
 
@@ -351,24 +359,36 @@ type format struct {
 
 // ---
 
+type styledText struct {
+	text  string
+	style stylePatch
+}
+
+func (t styledText) encode(e *entryEncoder) {
+	e.styler.Use(t.style, e.buf, func() {
+		e.buf.AppendString(t.text)
+	})
+}
+
+// ---
+
 type fmtItems struct {
-	Timestamp    fmtItem
-	Level        map[logf.Level]fmtItem
-	UnknownLevel fmtItem
-	Logger       fmtItem
-	Message      fmtItem
-	Field        fmtItem
-	Key          fmtItem
-	Caller       fmtItem
-	Array        fmtItem
-	Object       fmtItem
-	String       fmtItem
-	Number       fmtItem
-	Boolean      fmtItem
-	Time         fmtItem
-	Duration     fmtItem
-	Null         fmtItem
-	Error        fmtItem
+	Timestamp fmtItem
+	Level     [4]fmtItem
+	Logger    fmtItem
+	Message   fmtItem
+	Field     fmtItem
+	Key       fmtItem
+	Caller    fmtItem
+	Array     fmtItem
+	Object    fmtItem
+	String    fmtItem
+	Number    fmtItem
+	Boolean   fmtItem
+	Time      fmtItem
+	Duration  fmtItem
+	Null      fmtItem
+	Error     fmtItem
 }
 
 // ---
@@ -386,13 +406,12 @@ func newTheme(cfg *themecfg.Theme) *Theme {
 		items,
 		fmtItems{
 			newFmtItem(cfg.Formatting.Timestamp),
-			map[logf.Level]fmtItem{
+			[4]fmtItem{
 				logf.LevelDebug: newFmtItem(cfg.Formatting.Level.All.UpdatedBy(cfg.Formatting.Level.Debug)),
 				logf.LevelInfo:  newFmtItem(cfg.Formatting.Level.All.UpdatedBy(cfg.Formatting.Level.Info)),
 				logf.LevelWarn:  newFmtItem(cfg.Formatting.Level.All.UpdatedBy(cfg.Formatting.Level.Warning)),
 				logf.LevelError: newFmtItem(cfg.Formatting.Level.All.UpdatedBy(cfg.Formatting.Level.Error)),
 			},
-			newFmtItem(cfg.Formatting.Level.All.UpdatedBy(cfg.Formatting.Level.Unknown)),
 			newFmtItem(cfg.Formatting.Logger),
 			newFmtItem(cfg.Formatting.Message),
 			newFmtItem(cfg.Formatting.Field),
@@ -434,7 +453,7 @@ func newFmtItem(it formatting.Item) fmtItem {
 	return fmtItem{
 		outer:     newFormat(it.Outer),
 		inner:     newFormat(it.Inner),
-		separator: it.Separator,
+		separator: newStyledText(it.Separator),
 		text:      it.Text,
 	}
 }
@@ -451,9 +470,21 @@ func newStylePatch(s themecfg.Style) stylePatch {
 	return stylePatch{
 		sgr.SetBackgroundColor(s.Background),
 		sgr.SetForegroundColor(s.Foreground),
-		s.Modes.ModeSet(),
-		s.Modes != nil,
+		s.Modes.Sets(),
+		len(s.Modes) != 0,
+		len(s.Modes) == 0 && s.Background.IsZero() && s.Foreground.IsZero(),
 	}
+}
+
+func newStyledText(f formatting.StyledText) styledText {
+	result := styledText{
+		text: f.Text,
+	}
+	if f.Style != nil {
+		result.style = newStylePatch(*f.Style)
+	}
+
+	return result
 }
 
 // ---
@@ -467,3 +498,14 @@ const defaultThemeName = "default"
 
 var defaultThemeOnce sync.Once
 var defaultTheme *Theme
+
+// ---
+
+var (
+	_ item = (*itemTimestamp)(nil)
+	_ item = (*itemLevel)(nil)
+	_ item = (*itemLogger)(nil)
+	_ item = (*itemMessage)(nil)
+	_ item = (*itemFields)(nil)
+	_ item = (*itemCaller)(nil)
+)

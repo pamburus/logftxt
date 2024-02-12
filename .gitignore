@@ -16,3 +16,6 @@
 
 # Temporary auto-generated go files.
 go.work.sum
+
+# Visual Studio Code files
+.vscode

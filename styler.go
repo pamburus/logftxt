@@ -27,7 +27,7 @@ func (s styler) Disabled(value bool) styler {
 }
 
 func (s *styler) Use(style stylePatch, buf *logf.Buffer, f func()) {
-	if s.disabled {
+	if s.disabled || style.IsEmpty {
 		f()
 
 		return
@@ -57,8 +57,9 @@ type style struct {
 type stylePatch struct {
 	Background sgr.Command
 	Foreground sgr.Command
-	Modes      sgr.ModeSet
+	Modes      [4]sgr.ModeSet
 	HasModes   bool
+	IsEmpty    bool
 }
 
 func (s *style) UpdateBy(other stylePatch) bool {
@@ -71,9 +72,13 @@ func (s *style) UpdateBy(other stylePatch) bool {
 		s.Foreground = other.Foreground
 		updated = true
 	}
-	if other.HasModes && other.Modes != s.Modes {
-		s.Modes = other.Modes
-		updated = true
+	if other.HasModes {
+		oldModes := s.Modes
+		s.Modes = s.Modes.WithOther(other.Modes[sgr.ModeReplace], sgr.ModeAdd)
+		s.Modes = s.Modes.WithOther(other.Modes[sgr.ModeAdd], sgr.ModeAdd)
+		s.Modes = s.Modes.WithOther(other.Modes[sgr.ModeRemove], sgr.ModeRemove)
+		s.Modes = s.Modes.WithOther(other.Modes[sgr.ModeToggle], sgr.ModeToggle)
+		updated = updated || s.Modes != oldModes
 	}
 
 	return updated

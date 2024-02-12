@@ -39,11 +39,6 @@ theme:
           style:
             foreground: bright-red
             modes: [reversed]
-      unknown:
-        text: '(?)'
-        inner:
-          style:
-            foreground: default
     logger:
       outer:
         suffix: ':'
@@ -54,10 +49,10 @@ theme:
         style:
           foreground: bright-white
     field:
-      inner:
+      separator:
+        text: '='
         style:
           foreground: bright-black
-      separator: '='
     key:
       outer:
         style:
@@ -73,22 +68,18 @@ theme:
         outer:
           prefix: '['
           suffix: ']'
-          style:
-            foreground: default
-        separator: ','
+        separator:
+          text: ','
       object:
         outer:
           prefix: '{'
           suffix: '}'
-          style:
-            foreground: default
-        separator: ','
+        separator:
+          text: ','
       string:
         outer:
           prefix: "'"
           suffix: "'"
-          style:
-            foreground: default
       number:
         outer:
           style:
@@ -115,8 +106,3 @@ theme:
         outer:
           prefix: ''''
           suffix: ''''
-          style:
-            foreground: default
-        inner:
-          style:
-            foreground: default

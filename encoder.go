@@ -732,7 +732,7 @@ func (e *entryEncoder) appendArray(n int, appendElement func(int)) {
 			e.buf.AppendString(e.theme.fmt.Array.inner.prefix)
 			for i := 0; i != n; i++ {
 				if i != 0 {
-					e.buf.AppendString(e.theme.fmt.Array.separator)
+					e.theme.fmt.Array.separator.encode(e)
 				}
 				appendElement(i)
 			}
@@ -742,11 +742,11 @@ func (e *entryEncoder) appendArray(n int, appendElement func(int)) {
 }
 
 func (e *entryEncoder) appendField(k string, appendValue func()) {
-	e.addKey(k)
 	e.styler.Use(e.theme.fmt.Field.inner.style, e.buf, func() {
-		e.buf.AppendString(e.theme.fmt.Field.separator)
+		e.addKey(k)
+		e.theme.fmt.Field.separator.encode(e)
+		appendValue()
 	})
-	appendValue()
 }
 
 func (e *entryEncoder) appendSeparator() {
@@ -982,7 +982,7 @@ func (e *arrayEncoder) EncodeTypeUnsafeBytes(v unsafe.Pointer) {
 
 func (e *arrayEncoder) encode(encodeValue func()) {
 	if e.n != 0 {
-		e.e.buf.AppendString(e.e.theme.fmt.Array.separator)
+		e.e.theme.fmt.Array.separator.encode(e.e)
 	}
 	encodeValue()
 	e.n++
@@ -1189,7 +1189,7 @@ func (e *objectEncoder) EncodeFieldObject(k string, v logf.ObjectEncoder) {
 
 func (e *objectEncoder) encode(encodeField func()) {
 	if e.n != 0 {
-		e.e.buf.AppendString(e.e.theme.fmt.Object.separator)
+		e.e.theme.fmt.Object.separator.encode(e.e)
 	}
 	encodeField()
 	e.n++
