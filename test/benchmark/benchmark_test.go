@@ -46,6 +46,7 @@ func BenchmarkEncoder(b *testing.B) {
 		options := []logftxt.EncoderOption{
 			logftxt.CallerShort(),
 			logftxt.NewThemeRef("@legacy"),
+			logftxt.FlattenObjects(true),
 		}
 
 		b.Run("Color", testSameAndNew(logftxt.NewEncoder(append(options, logftxt.ColorAlways)...)))

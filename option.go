@@ -39,6 +39,24 @@ func (s ColorSetting) resolved(e Environment) ColorSetting {
 
 // ---
 
+// FlattenObjects tells encoder wether to flatten nested objects when encoding.
+func FlattenObjects(flatten bool) FlattenObjectsSetting {
+	return FlattenObjectsSetting(flatten)
+}
+
+// FlattenObjectsSetting tells encoder to flatten or not nested objects when encoding.
+type FlattenObjectsSetting bool
+
+func (s FlattenObjectsSetting) toEncoderOptions(o *encoderOptions) {
+	o.flattenObjects = bool(s)
+}
+
+func (s FlattenObjectsSetting) toAppenderOptions(o *appenderOptions) {
+	o.flattenObjects = bool(s)
+}
+
+// ---
+
 // AppenderOption is an optional parameter for NewAppender.
 type AppenderOption interface {
 	toAppenderOptions(*appenderOptions)
@@ -89,10 +107,11 @@ func (o appenderOptions) With(other []AppenderOption) appenderOptions {
 
 func defaultEncoderOptions() encoderOptions {
 	return encoderOptions{
-		domain:        defaultDomain(),
-		provideConfig: []ConfigProvideFunc{ConfigFromEnvironment()},
-		provideTheme:  []ThemeProvideFunc{ThemeFromEnvironment().fn()},
-		poolSizeLimit: 8,
+		domain:         defaultDomain(),
+		provideConfig:  []ConfigProvideFunc{ConfigFromEnvironment()},
+		provideTheme:   []ThemeProvideFunc{ThemeFromEnvironment().fn()},
+		poolSizeLimit:  8,
+		flattenObjects: true,
 	}
 }
 
@@ -107,6 +126,7 @@ type encoderOptions struct {
 	encodeTimeValue TimeValueEncodeFunc
 	encodeDuration  DurationEncodeFunc
 	poolSizeLimit   PoolSizeLimit
+	flattenObjects  bool
 }
 
 func (o encoderOptions) With(other []EncoderOption) encoderOptions {
