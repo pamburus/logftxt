@@ -51,6 +51,7 @@ func Load(reader io.Reader) (*Theme, error) {
 type Theme struct {
 	Version    string     `yaml:"version"`
 	Items      []Item     `yaml:"items"`
+	Settings   Settings   `yaml:"settings"`
 	Formatting Formatting `yaml:"formatting"`
 }
 
@@ -99,6 +100,13 @@ func (i Item) Validate() error {
 	}
 
 	return nil
+}
+
+// ---
+
+// Settings is a settings configuration section.
+type Settings struct {
+	TimeFormat string `yaml:"time-format"`
 }
 
 // ---

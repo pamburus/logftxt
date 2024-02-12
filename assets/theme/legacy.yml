@@ -78,8 +78,8 @@ theme:
           text: ','
       string:
         outer:
-          prefix: "'"
-          suffix: "'"
+          style:
+            foreground: default
       number:
         outer:
           style:

@@ -58,6 +58,12 @@ func (s FlattenObjectsSetting) toAppenderOptions(o *appenderOptions) {
 // ---
 
 // AppenderOption is an optional parameter for NewAppender.
+//
+// Applicable types: [CallerEncodeFunc], [ColorSetting], [PoolSizeLimit],
+// [Config], [ConfigProvideFunc], [Environment], [FSOption],
+// [Theme], [ThemeProvideFunc], [ThemeEnvironmentRef], [ThemeRef],
+// [FlattenObjectsSetting], [TimestampEncodeFunc], [TimeValueEncodeFunc],
+// [DurationEncodeFunc], [ErrorEncodeFunc].
 type AppenderOption interface {
 	toAppenderOptions(*appenderOptions)
 }
@@ -65,6 +71,12 @@ type AppenderOption interface {
 // ---
 
 // EncoderOption is an optional parameter for NewEncoder.
+//
+// Applicable types: [CallerEncodeFunc], [ColorSetting], [PoolSizeLimit],
+// [Config], [ConfigProvideFunc], [Environment], [FSOption],
+// [Theme], [ThemeProvideFunc], [ThemeEnvironmentRef], [ThemeRef],
+// [FlattenObjectsSetting], [TimestampEncodeFunc], [TimeValueEncodeFunc],
+// [DurationEncodeFunc], [ErrorEncodeFunc].
 type EncoderOption interface {
 	AppenderOption
 	toEncoderOptions(*encoderOptions)

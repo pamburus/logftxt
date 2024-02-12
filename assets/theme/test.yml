@@ -85,8 +85,6 @@ theme:
           text: ' '
       string:
         outer:
-          prefix: ''''
-          suffix: ''''
           style:
             foreground: cyan
         inner:

@@ -15,8 +15,13 @@ theme:
     level:
       all:
         outer:
-          prefix: '┊'
-          suffix: '┊'
+          prefix: '│'
+          suffix: '│'
+          style:
+            modes: [+faint]
+        inner:
+          style:
+            modes: [-faint]
       debug:
         text: 'DBG'
         inner:
@@ -26,20 +31,16 @@ theme:
         text: 'INF'
         inner:
           style:
-            foreground: cyan
+            foreground: green
       warning:
         text: 'WRN'
         outer:
-          prefix: '|'
-          suffix: '|'
           style:
             foreground: yellow
-            modes: [+reversed]
+            modes: [+reversed,-faint]
       error:
         text: 'ERR'
         outer:
-          prefix: '|'
-          suffix: '|'
           style:
             foreground: bright-red
             modes: [+reversed]
@@ -56,7 +57,7 @@ theme:
           modes: [+bold]
     field:
       separator:
-        text: ':'
+        text: '='
         style:
           modes: [+faint]
     key:
@@ -78,12 +79,14 @@ theme:
           prefix: '['
           suffix: ']'
           style:
-            foreground: cyan
+            foreground: magenta
         inner:
           prefix: ''
           suffix: ''
         separator:
           text: ','
+          style:
+            foreground: magenta
       object:
         outer:
           prefix: '{'
@@ -96,15 +99,9 @@ theme:
         separator:
           text: ' '
       string:
-        outer:
-          prefix: ''''
-          suffix: ''''
-          style:
-            modes: [+faint]
         inner:
           style:
             foreground: default
-            modes: [-faint]
       number:
         outer:
           style:
