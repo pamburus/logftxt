@@ -14,7 +14,7 @@ func TestStyler(tt *testing.T) {
 
 	buf := logf.NewBuffer()
 	s := newStyler()
-	s.Use(stylePatch{Modes: [4]sgr.ModeSet{sgr.Faint.ModeSet()}, HasModes: true}, buf, func() {
+	s.Use(stylePatch{Modes: [3]sgr.ModeSet{sgr.Faint.ModeSet()}, HasModes: true}, buf, func() {
 		buf.AppendByte('a')
 		s.Use(stylePatch{HasModes: true}, buf, func() {
 			buf.AppendByte('b')

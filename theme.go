@@ -480,8 +480,8 @@ func newStyledText(f formatting.StyledText) styledText {
 	result := styledText{
 		text: f.Text,
 	}
-	if f.Style != nil {
-		result.style = newStylePatch(*f.Style)
+	if !f.Style.IsZero() {
+		result.style = newStylePatch(f.Style)
 	}
 
 	return result

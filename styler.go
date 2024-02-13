@@ -57,7 +57,7 @@ type style struct {
 type stylePatch struct {
 	Background sgr.Command
 	Foreground sgr.Command
-	Modes      [4]sgr.ModeSet
+	Modes      [3]sgr.ModeSet
 	HasModes   bool
 	IsEmpty    bool
 }
@@ -74,10 +74,9 @@ func (s *style) UpdateBy(other stylePatch) bool {
 	}
 	if other.HasModes {
 		oldModes := s.Modes
-		s.Modes = s.Modes.WithOther(other.Modes[sgr.ModeReplace], sgr.ModeAdd)
-		s.Modes = s.Modes.WithOther(other.Modes[sgr.ModeAdd], sgr.ModeAdd)
-		s.Modes = s.Modes.WithOther(other.Modes[sgr.ModeRemove], sgr.ModeRemove)
-		s.Modes = s.Modes.WithOther(other.Modes[sgr.ModeToggle], sgr.ModeToggle)
+		s.Modes = s.Modes.WithOther(other.Modes[0], sgr.ModeAdd)
+		s.Modes = s.Modes.WithOther(other.Modes[1], sgr.ModeRemove)
+		s.Modes = s.Modes.WithOther(other.Modes[2], sgr.ModeToggle)
 		updated = updated || s.Modes != oldModes
 	}
 
