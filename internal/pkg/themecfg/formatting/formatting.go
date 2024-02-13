@@ -1,7 +1,11 @@
 // Package formatting provides formatting configuration section for slogtxt theme configuration.
 package formatting
 
-import "github.com/pamburus/go-ansi-esc/sgr"
+import (
+	"fmt"
+
+	"github.com/pamburus/go-ansi-esc/sgr"
+)
 
 // ---
 
@@ -17,12 +21,7 @@ type Item struct {
 func (i Item) UpdatedBy(other Item) Item {
 	i.Outer = i.Outer.UpdatedBy(other.Outer)
 	i.Inner = i.Inner.UpdatedBy(other.Inner)
-	if other.Separator.Text != "" {
-		i.Separator.Text = other.Separator.Text
-	}
-	if other.Separator.Style != nil {
-		i.Separator.Style = other.Separator.Style
-	}
+	i.Separator = i.Separator.UpdatedBy(other.Separator)
 	if other.Text != "" {
 		i.Text = other.Text
 	}
@@ -35,7 +34,18 @@ func (i Item) UpdatedBy(other Item) Item {
 // StyledText is a text with style.
 type StyledText struct {
 	Text  string `yaml:"text,omitempty"`
-	Style *Style `yaml:"style,omitempty"`
+	Style Style  `yaml:"style"`
+}
+
+// UpdatedBy returns a copy of t updated by other.
+func (t StyledText) UpdatedBy(other StyledText) StyledText {
+	if other.Text != "" {
+		t.Text = other.Text
+	}
+
+	t.Style = t.Style.UpdatedBy(other.Style)
+
+	return t
 }
 
 // ---
@@ -91,10 +101,15 @@ func (s Style) UpdatedBy(other Style) Style {
 		s.Foreground = other.Foreground
 	}
 	if other.Modes != nil {
-		s.Modes = other.Modes
+		s.Modes = s.Modes.UpdatedBy(other.Modes)
 	}
 
 	return s
+}
+
+// IsZero returns true if s is zero value.
+func (s Style) IsZero() bool {
+	return s.Background.IsZero() && s.Foreground.IsZero() && len(s.Modes) == 0
 }
 
 // ---
@@ -102,14 +117,33 @@ func (s Style) UpdatedBy(other Style) Style {
 // ModePatchList is a list of mode patches.
 type ModePatchList []ModePatch
 
-// Sets returns an array of mode sets for each possible sgr.ModeAction.
-func (l ModePatchList) Sets() [4]sgr.ModeSet {
-	var sets [4]sgr.ModeSet
+// Sets returns an array of mode sets for actions sgr.ModeAdd, sgr.ModeRemove and sgr.ModeToggle.
+func (l ModePatchList) Sets() [3]sgr.ModeSet {
+	var sets [3]sgr.ModeSet
+
 	for _, p := range l {
-		sets[p.Action] |= p.Mode.ModeSet()
+		switch p.Action {
+		case sgr.ModeReplace, sgr.ModeAdd:
+			sets[0] = sets[0].With(p.Mode)
+			sets[1] = sets[1].Without(p.Mode)
+			sets[2] = sets[2].Without(p.Mode)
+		case sgr.ModeRemove:
+			sets[0] = sets[0].Without(p.Mode)
+			sets[1] = sets[1].With(p.Mode)
+			sets[2] = sets[2].Without(p.Mode)
+		case sgr.ModeToggle:
+			sets[0] = sets[0].Without(p.Mode)
+			sets[1] = sets[1].Without(p.Mode)
+			sets[2] = sets[2].With(p.Mode)
+		}
 	}
 
 	return sets
+}
+
+// UpdatedBy returns a copy of l updated by other.
+func (l ModePatchList) UpdatedBy(other ModePatchList) ModePatchList {
+	return append(l, other...)
 }
 
 // ---
@@ -137,7 +171,7 @@ func (p ModePatch) MarshalText() ([]byte, error) {
 	case sgr.ModeToggle:
 		return append([]byte("^"), mode...), nil
 	default:
-		panic("unknown mode action")
+		return nil, fmt.Errorf("invalid mode action: %d", p.Action)
 	}
 }
 
