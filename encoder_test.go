@@ -37,6 +37,70 @@ func TestEncoder(tt *testing.T) {
 		Specified: true,
 	}
 
+	t.Run("Level", func(t tst.Test) {
+		enc := logftxt.NewEncoder(config, logftxt.ColorNever, theme, logftxt.DefaultConfig())
+
+		t.Run("BelowDebug", func(t tst.Test) {
+			buf := logf.NewBuffer()
+			t.Expect(enc.Encode(buf, logf.Entry{
+				Time:  time.Date(2020, 1, 2, 3, 4, 5, 6, time.UTC),
+				Level: logf.LevelDebug + 1,
+				Text:  "msg",
+			})).ToSucceed()
+			t.Expect(buf.String()).ToEqual("Jan  2 03:04:05.000 |DBG| msg\n")
+		})
+
+		t.Run("Debug", func(t tst.Test) {
+			buf := logf.NewBuffer()
+			t.Expect(enc.Encode(buf, logf.Entry{
+				Time:  time.Date(2020, 1, 2, 3, 4, 5, 6, time.UTC),
+				Level: logf.LevelDebug,
+				Text:  "msg",
+			})).ToSucceed()
+			t.Expect(buf.String()).ToEqual("Jan  2 03:04:05.000 |DBG| msg\n")
+		})
+
+		t.Run("Info", func(t tst.Test) {
+			buf := logf.NewBuffer()
+			t.Expect(enc.Encode(buf, logf.Entry{
+				Time:  time.Date(2020, 1, 2, 3, 4, 5, 6, time.UTC),
+				Level: logf.LevelInfo,
+				Text:  "msg",
+			})).ToSucceed()
+			t.Expect(buf.String()).ToEqual("Jan  2 03:04:05.000 |INF| msg\n")
+		})
+
+		t.Run("Warn", func(t tst.Test) {
+			buf := logf.NewBuffer()
+			t.Expect(enc.Encode(buf, logf.Entry{
+				Time:  time.Date(2020, 1, 2, 3, 4, 5, 6, time.UTC),
+				Level: logf.LevelWarn,
+				Text:  "msg",
+			})).ToSucceed()
+			t.Expect(buf.String()).ToEqual("Jan  2 03:04:05.000 |WRN| msg\n")
+		})
+
+		t.Run("Error", func(t tst.Test) {
+			buf := logf.NewBuffer()
+			t.Expect(enc.Encode(buf, logf.Entry{
+				Time:  time.Date(2020, 1, 2, 3, 4, 5, 6, time.UTC),
+				Level: logf.LevelError,
+				Text:  "msg",
+			})).ToSucceed()
+			t.Expect(buf.String()).ToEqual("Jan  2 03:04:05.000 |ERR| msg\n")
+		})
+
+		t.Run("AboveError", func(t tst.Test) {
+			buf := logf.NewBuffer()
+			t.Expect(enc.Encode(buf, logf.Entry{
+				Time:  time.Date(2020, 1, 2, 3, 4, 5, 6, time.UTC),
+				Level: logf.LevelError - 1,
+				Text:  "msg",
+			})).ToSucceed()
+			t.Expect(buf.String()).ToEqual("Jan  2 03:04:05.000 |ERR| msg\n")
+		})
+	})
+
 	t.Run("OccasionalComposite", func(t tst.Test) {
 		testEntry := logf.Entry{
 			LoggerName: "ml",
