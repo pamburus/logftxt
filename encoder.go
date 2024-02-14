@@ -56,6 +56,8 @@ func (e *encoder) getEntryEncoder() *entryEncoder {
 			nil,
 			logf.NewCache(100),
 			0,
+			nil,
+			0,
 			newStyler().Disabled(e.color == ColorNever),
 		}
 	}
@@ -186,6 +188,8 @@ type entryEncoder struct {
 	buf         *logf.Buffer
 	cache       *logf.Cache
 	startBufLen int
+	objectKeys  []string
+	objectScope int
 
 	styler styler
 }
@@ -308,9 +312,16 @@ func (e *entryEncoder) EncodeFieldArray(k string, v logf.ArrayEncoder) {
 }
 
 func (e *entryEncoder) EncodeFieldObject(k string, v logf.ObjectEncoder) {
-	e.appendField(k, func() {
-		e.EncodeTypeObject(v)
-	})
+	if e.flattenObjects {
+		e.objectKeys = append(e.objectKeys, k)
+		oe := objectEncoder{e, 0}
+		_ = v.EncodeLogfObject(&oe)
+		e.objectKeys = e.objectKeys[:len(e.objectKeys)-1]
+	} else {
+		e.appendField(k, func() {
+			e.EncodeTypeObject(v)
+		})
+	}
 }
 
 func (e *entryEncoder) EncodeFieldBytes(k string, v []byte) {
@@ -688,6 +699,9 @@ func (e *entryEncoder) EncodeTypeDurations(v []time.Duration) {
 }
 
 func (e *entryEncoder) EncodeTypeArray(v logf.ArrayEncoder) {
+	old := e.objectScope
+	e.objectScope = len(e.objectKeys)
+
 	e.theme.fmt.Array.encode(e, func() {
 		e.buf.AppendString(e.theme.fmt.Array.inner.prefix)
 		ae := arrayEncoder{e, 0}
@@ -698,6 +712,8 @@ func (e *entryEncoder) EncodeTypeArray(v logf.ArrayEncoder) {
 			e.buf.AppendString(e.theme.fmt.Array.inner.suffix)
 		}
 	})
+
+	e.objectScope = old
 }
 
 func (e *entryEncoder) EncodeTypeObject(v logf.ObjectEncoder) {
@@ -761,6 +777,10 @@ func (e *entryEncoder) empty() bool {
 
 func (e *entryEncoder) addKey(k string) {
 	e.theme.fmt.Key.encode(e, func() {
+		for _, prefix := range e.objectKeys[e.objectScope:] {
+			e.buf.AppendString(prefix)
+			e.theme.fmt.Key.separator.encode(e)
+		}
 		e.buf.AppendString(k)
 	})
 }
@@ -1188,11 +1208,21 @@ func (e *objectEncoder) EncodeFieldObject(k string, v logf.ObjectEncoder) {
 }
 
 func (e *objectEncoder) encode(encodeField func()) {
+	initialOffset := e.e.buf.Len()
 	if e.n != 0 {
-		e.e.theme.fmt.Object.separator.encode(e.e)
+		if e.e.flattenObjects && e.e.objectScope == 0 {
+			e.e.appendSeparator()
+		} else {
+			e.e.theme.fmt.Object.separator.encode(e.e)
+		}
 	}
+	fieldOffset := e.e.buf.Len()
 	encodeField()
-	e.n++
+	if fieldOffset == e.e.buf.Len() {
+		e.e.buf.Data = e.e.buf.Data[:initialOffset]
+	} else {
+		e.n++
+	}
 }
 
 // ---

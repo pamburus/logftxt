@@ -402,7 +402,7 @@ func newTheme(cfg *themecfg.Theme) *Theme {
 		}
 	}
 
-	return &Theme{
+	theme := &Theme{
 		items,
 		fmtItems{
 			newFmtItem(cfg.Formatting.Timestamp),
@@ -428,6 +428,15 @@ func newTheme(cfg *themecfg.Theme) *Theme {
 			newFmtItem(cfg.Formatting.Types.Error),
 		},
 	}
+
+	if theme.fmt.Key.separator.text == "" {
+		theme.fmt.Key.separator.text = "."
+	}
+	if theme.fmt.Logger.separator.text == "" {
+		theme.fmt.Logger.separator.text = "."
+	}
+
+	return theme
 }
 
 func newItem(it themecfg.Item) (item, bool) {

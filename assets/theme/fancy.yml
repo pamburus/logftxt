@@ -63,6 +63,10 @@ theme:
       outer:
         style:
           foreground: green
+      separator:
+        text: '.'
+        style:
+          modes: [+faint]
     caller:
       outer:
         prefix: '→ '
