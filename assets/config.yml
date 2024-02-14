@@ -7,9 +7,9 @@ theme: '@default'
 # Specifies log message timestamp settings.
 timestamp:
   # Specifies log message timestamp format.
-  # Default value is 'Jan _2 15:04:05.000'.
+  # Default value is 'Jan _2 15:04:05'.
   # See https://pkg.go.dev/time#pkg-constants for more details.
-  format: 'Jan _2 15:04:05.000'
+  format: '15:04:05'
 
 # Specifies caller reference settings.
 caller:
@@ -25,9 +25,9 @@ values:
   # Specifies time field values settings.
   time: 
     # Specifies time format in field values.
-    # Default value is 'Jan _2 15:04:05.000'.
+    # Default value is 'Jan _2 15:04:05'.
     # See https://pkg.go.dev/time#pkg-constants for more details.
-    format: 'Jan _2 15:04:05.000'
+    format: 'Jan _2 15:04:05'
   
   # Specifies duration field values settings.
   duration: 
