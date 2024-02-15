@@ -85,6 +85,10 @@ theme:
         inner:
           style:
             foreground: default
+      quotes:
+        modes: []
+      special:
+        modes: [+faint]
       number:
         outer:
           style:
@@ -111,3 +115,7 @@ theme:
           suffix: '"'
           style:
             foreground: bright-red
+            modes: [+faint]
+        inner:
+          style:
+            modes: [-faint]

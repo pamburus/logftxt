@@ -48,18 +48,24 @@ func (s *styler) Use(style stylePatch, buf *logf.Buffer, f func()) {
 
 // ---
 
-type style struct {
-	Background sgr.Command
-	Foreground sgr.Command
-	Modes      sgr.ModeSet
-}
-
 type stylePatch struct {
 	Background sgr.Command
 	Foreground sgr.Command
 	Modes      [3]sgr.ModeSet
 	HasModes   bool
 	IsEmpty    bool
+}
+
+func (p stylePatch) encode(e *entryEncoder, encodeInner func()) {
+	e.styler.Use(p, e.buf, encodeInner)
+}
+
+// ---
+
+type style struct {
+	Background sgr.Command
+	Foreground sgr.Command
+	Modes      sgr.ModeSet
 }
 
 func (s *style) UpdateBy(other stylePatch) bool {

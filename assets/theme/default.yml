@@ -57,8 +57,10 @@ theme:
         suffix: ':'
         style:
           modes: [+faint]
+      separator:
+        text:
     message:
-      inner:
+      outer:
         style:
           modes: [+bold]
     field:
@@ -70,6 +72,10 @@ theme:
       outer:
         style:
           foreground: green
+      separator:
+        text:
+        style:
+          modes: []
     caller:
       outer:
         prefix: '@ '
@@ -93,6 +99,8 @@ theme:
         outer:
           prefix: '{'
           suffix: '}'
+          style:
+            foreground: bright-magenta
         inner:
           prefix: ' '
           suffix: ' '
@@ -102,6 +110,10 @@ theme:
         outer:
           style:
             foreground: default
+      quotes:
+        modes: [+faint]
+      special:
+        modes: [+faint]
       number:
         outer:
           style:
