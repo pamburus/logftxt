@@ -37,13 +37,21 @@ theme:
         outer:
           style:
             foreground: yellow
+            background: yellow
             modes: [+reversed,-faint]
+        inner:
+          style:
+            background: default
       error:
         text: 'ERR'
         outer:
           style:
             foreground: bright-red
-            modes: [+reversed]
+            background: bright-red
+            modes: [+reversed,-faint]
+        inner:
+          style:
+            background: default
     logger:
       outer:
         suffix: ' ‣'
@@ -99,7 +107,7 @@ theme:
         separator:
           text: ' '
       string:
-        inner:
+        outer:
           style:
             foreground: default
       number:
@@ -123,7 +131,7 @@ theme:
       'null':
         outer:
           style:
-            foreground: red
+            foreground: bright-red
       error:
         outer:
           prefix: ''''
@@ -132,4 +140,4 @@ theme:
             modes: [+bold]
         inner:
           style:
-            foreground: red
+            foreground: bright-red

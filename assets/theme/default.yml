@@ -17,6 +17,11 @@ theme:
         outer:
           prefix: '|'
           suffix: '|'
+          style:
+            modes: [+faint]
+        inner:
+          style:
+            modes: [-faint]
       debug:
         text: 'DBG'
         inner:
@@ -32,13 +37,21 @@ theme:
         outer:
           style:
             foreground: yellow
-            modes: [+reversed]
+            background: yellow
+            modes: [+reversed,-faint]
+        inner:
+          style:
+            background: default
       error:
         text: 'ERR'
         outer:
           style:
             foreground: bright-red
-            modes: [+reversed]
+            background: bright-red
+            modes: [+reversed,-faint]
+        inner:
+          style:
+            background: default
     logger:
       outer:
         suffix: ':'
@@ -68,14 +81,14 @@ theme:
           prefix: '['
           suffix: ']'
           style:
-            foreground: magenta
+            foreground: bright-magenta
         inner:
           prefix: ''
           suffix: ''
         separator:
           text: ','
           style:
-            foreground: magenta
+            foreground: bright-magenta
       object:
         outer:
           prefix: '{'
@@ -119,4 +132,4 @@ theme:
             modes: [+bold]
         inner:
           style:
-            foreground: red
+            foreground: bright-red
