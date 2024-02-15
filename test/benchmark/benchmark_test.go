@@ -49,8 +49,8 @@ func BenchmarkEncoder(b *testing.B) {
 			logftxt.FlattenObjects(true),
 		}
 
-		b.Run("Color", testSameAndNew(logftxt.NewEncoder(append(options, logftxt.ColorAlways)...)))
-		b.Run("NoColor", testSameAndNew(logftxt.NewEncoder(append(options, logftxt.ColorNever)...)))
+		b.Run("WithColor", testSameAndNew(logftxt.NewEncoder(append(options, logftxt.ColorAlways)...)))
+		b.Run("WithoutColor", testSameAndNew(logftxt.NewEncoder(append(options, logftxt.ColorNever)...)))
 	})
 
 	b.Run("logftext", func(b *testing.B) {
@@ -60,12 +60,10 @@ func BenchmarkEncoder(b *testing.B) {
 			}
 		}
 
-		b.Run("Color", testSameAndNew(logftext.NewEncoder(config(false))))
-		b.Run("NoColor", testSameAndNew(logftext.NewEncoder(config(true))))
+		b.Run("WithColor", testSameAndNew(logftext.NewEncoder(config(false))))
+		b.Run("WithoutColor", testSameAndNew(logftext.NewEncoder(config(true))))
 	})
 }
-
-// ---
 
 var testEntryTemplate = logf.Entry{
 	LoggerName: "some.test.logger",
