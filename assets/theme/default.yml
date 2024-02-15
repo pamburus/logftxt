@@ -67,11 +67,15 @@ theme:
         outer:
           prefix: '['
           suffix: ']'
+          style:
+            foreground: magenta
         inner:
           prefix: ''
           suffix: ''
         separator:
           text: ','
+          style:
+            foreground: magenta
       object:
         outer:
           prefix: '{'
@@ -83,13 +87,8 @@ theme:
           text: ' '
       string:
         outer:
-          prefix: ''''
-          suffix: ''''
           style:
-            modes: [+faint]
-        inner:
-          style:
-            modes: [-faint]
+            foreground: default
       number:
         outer:
           style:

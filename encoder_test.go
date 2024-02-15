@@ -108,7 +108,10 @@ func TestEncoder(tt *testing.T) {
 				logf.String("dsf1", "sv1"),
 				logf.Int("dif1", 420),
 				logf.Ints("dia", []int{420, 430, 440}),
+				logf.Ints("dia0", []int{}),
 				logf.String("dsf2", "sv2"),
+				logf.String("dsf0", ""),
+				logf.Object("o1", asObject(logf.String("a", "b"), logf.String("c", "d"))),
 				logf.Int("dif1", 840),
 				logf.Strings("dsa", []string{"abc", "def", "ghi"}),
 			},
@@ -116,6 +119,7 @@ func TestEncoder(tt *testing.T) {
 				logf.String("sf", "sv"),
 				logf.Int("if", 42),
 				logf.Ints("array", []int{42, 43, 44}),
+				logf.Object("o0", asObject()),
 			},
 			Level:  logf.LevelDebug,
 			Time:   time.Date(2020, 1, 2, 3, 4, 5, 6, time.UTC),
@@ -123,14 +127,27 @@ func TestEncoder(tt *testing.T) {
 			Caller: caller,
 		}
 
-		enc := logftxt.NewEncoder(config, logftxt.ColorAlways, theme)
+		t.Run("Flatten", func(t tst.Test) {
+			enc := logftxt.NewEncoder(config, logftxt.ColorAlways, theme, logftxt.FlattenObjects(true))
 
-		buf := logf.NewBuffer()
-		t.Expect(enc.Encode(buf, testEntry)).ToSucceed()
+			buf := logf.NewBuffer()
+			t.Expect(enc.Encode(buf, testEntry)).ToSucceed()
 
-		t.Expect(buf.String()).ToEqual(
-			"\x1b[2mJan  2 03:04:05.000\x1b[0m |\x1b[35mDBG\x1b[0m| \x1b[2mml:\x1b[0m \x1b[1mThe quick brown fox jumps over a lazy dog\x1b[0m \x1b[32mdsf1\x1b[0m\x1b[2m=\x1b[0m'sv1' \x1b[32mdif1\x1b[0m\x1b[2m=\x1b[0m\x1b[94m420\x1b[0m \x1b[32mdia\x1b[0m\x1b[2m=\x1b[0m[\x1b[94m420\x1b[0m,\x1b[94m430\x1b[0m,\x1b[94m440\x1b[0m] \x1b[32mdsf2\x1b[0m\x1b[2m=\x1b[0m'sv2' \x1b[32mdif1\x1b[0m\x1b[2m=\x1b[0m\x1b[94m840\x1b[0m \x1b[32mdsa\x1b[0m\x1b[2m=\x1b[0m['abc','def','ghi'] \x1b[32msf\x1b[0m\x1b[2m=\x1b[0m'sv' \x1b[32mif\x1b[0m\x1b[2m=\x1b[0m\x1b[94m42\x1b[0m \x1b[32marray\x1b[0m\x1b[2m=\x1b[0m[\x1b[94m42\x1b[0m,\x1b[94m43\x1b[0m,\x1b[94m44\x1b[0m] \x1b[90;3m@ test.go:42\x1b[0m\n",
-		)
+			t.Expect(buf.String()).ToEqual(
+				"\x1b[2mJan  2 03:04:05.000\x1b[0m |\x1b[35mDBG\x1b[0m| \x1b[2mml:\x1b[0m \x1b[1mThe quick brown fox jumps over a lazy dog\x1b[0m \x1b[32mdsf1\x1b[0m\x1b[2m=\x1b[0msv1 \x1b[32mdif1\x1b[0m\x1b[2m=\x1b[0m\x1b[94m420\x1b[0m \x1b[32mdia\x1b[0m\x1b[2m=\x1b[0m[ \x1b[94m420\x1b[0m, \x1b[94m430\x1b[0m, \x1b[94m440\x1b[0m ] \x1b[32mdia0\x1b[0m\x1b[2m=\x1b[0m[] \x1b[32mdsf2\x1b[0m\x1b[2m=\x1b[0msv2 \x1b[32mdsf0\x1b[0m\x1b[2m=\x1b[0m\"\" \x1b[32mo1.a\x1b[0m\x1b[2m=\x1b[0mb \x1b[32mo1.c\x1b[0m\x1b[2m=\x1b[0md \x1b[32mdif1\x1b[0m\x1b[2m=\x1b[0m\x1b[94m840\x1b[0m \x1b[32mdsa\x1b[0m\x1b[2m=\x1b[0m[ abc, def, ghi ] \x1b[32msf\x1b[0m\x1b[2m=\x1b[0msv \x1b[32mif\x1b[0m\x1b[2m=\x1b[0m\x1b[94m42\x1b[0m \x1b[32marray\x1b[0m\x1b[2m=\x1b[0m[ \x1b[94m42\x1b[0m, \x1b[94m43\x1b[0m, \x1b[94m44\x1b[0m ] \x1b[90;3m@ test.go:42\x1b[0m\n",
+			)
+		})
+
+		t.Run("NoFlatten", func(t tst.Test) {
+			enc := logftxt.NewEncoder(config, logftxt.ColorAlways, theme, logftxt.FlattenObjects(false))
+
+			buf := logf.NewBuffer()
+			t.Expect(enc.Encode(buf, testEntry)).ToSucceed()
+
+			t.Expect(buf.String()).ToEqual(
+				"\x1b[2mJan  2 03:04:05.000\x1b[0m |\x1b[35mDBG\x1b[0m| \x1b[2mml:\x1b[0m \x1b[1mThe quick brown fox jumps over a lazy dog\x1b[0m \x1b[32mdsf1\x1b[0m\x1b[2m=\x1b[0msv1 \x1b[32mdif1\x1b[0m\x1b[2m=\x1b[0m\x1b[94m420\x1b[0m \x1b[32mdia\x1b[0m\x1b[2m=\x1b[0m[ \x1b[94m420\x1b[0m, \x1b[94m430\x1b[0m, \x1b[94m440\x1b[0m ] \x1b[32mdia0\x1b[0m\x1b[2m=\x1b[0m[] \x1b[32mdsf2\x1b[0m\x1b[2m=\x1b[0msv2 \x1b[32mdsf0\x1b[0m\x1b[2m=\x1b[0m\"\" \x1b[32mo1\x1b[0m\x1b[2m=\x1b[0m{ \x1b[32ma\x1b[0m\x1b[2m=\x1b[0mb, \x1b[32mc\x1b[0m\x1b[2m=\x1b[0md } \x1b[32mdif1\x1b[0m\x1b[2m=\x1b[0m\x1b[94m840\x1b[0m \x1b[32mdsa\x1b[0m\x1b[2m=\x1b[0m[ abc, def, ghi ] \x1b[32msf\x1b[0m\x1b[2m=\x1b[0msv \x1b[32mif\x1b[0m\x1b[2m=\x1b[0m\x1b[94m42\x1b[0m \x1b[32marray\x1b[0m\x1b[2m=\x1b[0m[ \x1b[94m42\x1b[0m, \x1b[94m43\x1b[0m, \x1b[94m44\x1b[0m ] \x1b[32mo0\x1b[0m\x1b[2m=\x1b[0m{} \x1b[90;3m@ test.go:42\x1b[0m\n",
+			)
+		})
 	})
 
 	someTime := time.Date(2020, 1, 2, 3, 4, 5, 6, time.UTC)
@@ -153,7 +170,7 @@ func TestEncoder(tt *testing.T) {
 		}
 
 		array := func(values ...string) string {
-			return "[" + strings.Join(values, ",") + "]"
+			return "[ " + strings.Join(values, ", ") + " ]"
 		}
 
 		object := func(pairs ...string) string {
@@ -167,7 +184,7 @@ func TestEncoder(tt *testing.T) {
 				fields = append(fields, fmt.Sprintf("%s=%s", pairs[i], pairs[i+1]))
 			}
 
-			return "{" + strings.Join(fields, ",") + "}"
+			return "{ " + strings.Join(fields, ", ") + " }"
 		}
 
 		t.Run("Int", test(0, logf.Int("a", 42), "a", "42"))
@@ -183,9 +200,20 @@ func TestEncoder(tt *testing.T) {
 		t.Run("Bool", test(0, logf.Bool("a", true), "a", "true"))
 		t.Run("Float32", test(0, logf.Float32("a", 42.43), "a", "42.43"))
 		t.Run("Float64", test(0, logf.Float64("a", 42.43), "a", "42.43"))
-		t.Run("String", test(0, logf.String("a", "oue"), "a", "'oue'"))
+		t.Run("String", func(t tst.Test) {
+			t.Run("Simple", test(0, logf.String("a", "oue"), "a", "oue"))
+			t.Run("Empty", test(0, logf.String("a", ""), "a", `""`))
+			t.Run("WithEqualSign", test(0, logf.String("a", "a=b"), "a", `"a=b"`))
+			t.Run("WithSpace", test(0, logf.String("a", "a b"), "a", `"a b"`))
+			t.Run("WithNewLine", test(0, logf.String("a", "a\nb"), "a", `"a\nb"`))
+			t.Run("WithDot", test(0, logf.String("a", "a.b"), "a", "a.b"))
+			t.Run("LikeInt", test(0, logf.String("a", "42"), "a", `"42"`))
+			t.Run("LikeFloat", test(0, logf.String("a", "42.1"), "a", `"42.1"`))
+			t.Run("LikeIPAddress", test(0, logf.String("a", "192.168.0.1"), "a", "192.168.0.1"))
+			t.Run("Null", test(0, logf.String("a", "null"), "a", `"null"`))
+		})
 		t.Run("Duration", test(0, logf.Duration("a", time.Second), "a", "00:00:01"))
-		t.Run("Error", test(0, logf.Error(errors.New("oops")), "error", "{{oops}}"))
+		t.Run("Error", test(0, logf.Error(errors.New("oops")), "error", "{{ oops }}"))
 		t.Run("Time", test(0, logf.Time("t", someTime), "t", "[[Jan  2 03:04:05.000]]"))
 		t.Run("Ints", test(0, logf.Ints("a", []int{42}), "a", array("42")))
 		t.Run("Ints8", test(0, logf.Ints8("a", []int8{42}), "a", array("42")))
@@ -201,9 +229,9 @@ func TestEncoder(tt *testing.T) {
 		t.Run("Floats32", test(0, logf.Floats32("a", []float32{42.43, 42.42}), "a", array("42.43", "42.42")))
 		t.Run("Floats64", test(0, logf.Floats64("a", []float64{42.43, 42.42}), "a", array("42.43", "42.42")))
 		t.Run("Durations", test(0, logf.Durations("a", []time.Duration{time.Second, time.Minute}), "a", array("00:00:01", "00:01:00")))
-		t.Run("Strings", test(0, logf.Strings("a", []string{"bcd", "efg"}), "a", array("'bcd'", "'efg'")))
+		t.Run("Strings", test(0, logf.Strings("a", []string{"bcd", "efg"}), "a", array("bcd", "efg")))
 		t.Run("StringsEmpty", test(0, logf.Strings("a", []string{}), "a", "[]"))
-		t.Run("Bytes", test(0, logf.Bytes("a", []byte{1, 2, 3}), "a", "'AQID'"))
+		t.Run("Bytes", test(0, logf.Bytes("a", []byte{1, 2, 3}), "a", "AQID"))
 
 		t.Run("Any", func(t tst.Test) {
 			parentTest := test
@@ -225,9 +253,9 @@ func TestEncoder(tt *testing.T) {
 			t.Run("Bool", test(0, "a", bool(true), "true"))
 			t.Run("Float32", test(0, "a", float32(42.43), "42.43"))
 			t.Run("Float64", test(0, "a", float64(42.43), "42.43"))
-			t.Run("String", test(0, "a", "oue", "'oue'"))
+			t.Run("String", test(0, "a", "oue", "oue"))
 			t.Run("Duration", test(0, "a", time.Second, "00:00:01"))
-			t.Run("Error", test(0, "e", errors.New("oops"), "{{oops}}"))
+			t.Run("Error", test(0, "e", errors.New("oops"), "{{ oops }}"))
 			t.Run("Time", test(0, "t", someTime, "[[Jan  2 03:04:05.000]]"))
 			t.Run("Ints", test(0, "a", []int{42}, array("42")))
 			t.Run("Ints8", test(0, "a", []int8{42}, array("42")))
@@ -235,7 +263,7 @@ func TestEncoder(tt *testing.T) {
 			t.Run("Ints32", test(0, "a", []int32{42}, array("42")))
 			t.Run("Ints64", test(0, "a", []int64{42}, array("42")))
 			t.Run("Uints", test(0, "a", []uint{42}, array("42")))
-			t.Run("Uints8", test(0, "a", []uint8{42}, "'Kg=='"))
+			t.Run("Uints8", test(0, "a", []uint8{42}, "Kg=="))
 			t.Run("Uints16", test(0, "a", []uint16{42}, array("42")))
 			t.Run("Uints32", test(0, "a", []uint32{42}, array("42")))
 			t.Run("Uints64", test(0, "a", []uint64{42}, array("42")))
@@ -243,13 +271,13 @@ func TestEncoder(tt *testing.T) {
 			t.Run("Floats32", test(0, "a", []float32{42.43, 42.42}, array("42.43", "42.42")))
 			t.Run("Floats64", test(0, "a", []float64{42.43, 42.42}, array("42.43", "42.42")))
 			t.Run("Durations", test(0, "a", []time.Duration{time.Second, time.Minute}, array("00:00:01", "00:01:00")))
-			t.Run("Strings", test(0, "a", []string{"bcd", "efg"}, array("'bcd'", "'efg'")))
-			t.Run("Bytes", test(0, "a", []byte{1, 2, 3}, "'AQID'"))
+			t.Run("Strings", test(0, "a", []string{"bcd", "efg"}, array("bcd", "efg")))
+			t.Run("Bytes", test(0, "a", []byte{1, 2, 3}, "AQID"))
 			t.Run("Array", test(0, "a", newMockArray(logf.TypeEncoder.EncodeTypeBool, false, true), array("false", "true")))
 			t.Run("Object", test(0, "a", newMockObject(logf.Bool("b", true)), object("b", "true")))
-			t.Run("Stringer", test(0, "a", mockStringer("oue"), "'oue'"))
-			t.Run("AnySlice", test(0, "a", []newTypeString{"2", "42"}, array("'2'", "'42'")))
-			t.Run("AnyArray", test(0, "a", [2]newTypeString{"2", "42"}, array("'2'", "'42'")))
+			t.Run("Stringer", test(0, "a", mockStringer("oue"), "oue"))
+			t.Run("AnySlice", test(0, "a", []newTypeString{"2", "42"}, array(`"2"`, `"42"`)))
+			t.Run("AnyArray", test(0, "a", [2]newTypeString{"2", "42"}, array(`"2"`, `"42"`)))
 
 			t.Run("NewType", func(t tst.Test) {
 				t.Run("Bool", test(0, "a", newTypeBool(true), "true"))
@@ -265,7 +293,7 @@ func TestEncoder(tt *testing.T) {
 				t.Run("Uint64", test(0, "a", newTypeUint64(42), "42"))
 				t.Run("Float32", test(0, "a", newTypeFloat32(42.2), "42.2"))
 				t.Run("Float64", test(0, "a", newTypeFloat64(42.3), "42.3"))
-				t.Run("String", test(0, "a", newTypeString("abc"), "'abc'"))
+				t.Run("String", test(0, "a", newTypeString("abc"), "abc"))
 			})
 		})
 
@@ -289,7 +317,7 @@ func TestEncoder(tt *testing.T) {
 			t.Run("Float64", test(0, "a", newMockArray(te.EncodeTypeFloat64, 1.2, 2.3), "1.2", "2.3"))
 			t.Run("Duration", test(0, "a", newMockArray(te.EncodeTypeDuration, time.Hour, time.Minute), "01:00:00", "00:01:00"))
 			t.Run("Time", test(0, "a", newMockArray(te.EncodeTypeTime, someTime), "[[Jan  2 03:04:05.000]]"))
-			t.Run("Bytes", test(0, "a", newMockArray(te.EncodeTypeBytes, []byte{1, 2, 3}), "'AQID'"))
+			t.Run("Bytes", test(0, "a", newMockArray(te.EncodeTypeBytes, []byte{1, 2, 3}), "AQID"))
 			t.Run("Ints8", test(0, "a", newMockArray(te.EncodeTypeInts8, []int8{42}), array("42")))
 			t.Run("Ints16", test(0, "a", newMockArray(te.EncodeTypeInts16, []int16{42}), array("42")))
 			t.Run("Ints32", test(0, "a", newMockArray(te.EncodeTypeInts32, []int32{42}), array("42")))
@@ -302,7 +330,7 @@ func TestEncoder(tt *testing.T) {
 			t.Run("Floats32", test(0, "a", newMockArray(te.EncodeTypeFloats32, []float32{42.43, 42.42}), array("42.43", "42.42")))
 			t.Run("Floats64", test(0, "a", newMockArray(te.EncodeTypeFloats64, []float64{42.43, 42.42}), array("42.43", "42.42")))
 			t.Run("Durations", test(0, "a", newMockArray(te.EncodeTypeDurations, []time.Duration{time.Second, time.Minute}), array("00:00:01", "00:01:00")))
-			t.Run("Strings", test(0, "a", newMockArray(te.EncodeTypeStrings, []string{"bcd", "efg"}), array("'bcd'", "'efg'")))
+			t.Run("Strings", test(0, "a", newMockArray(te.EncodeTypeStrings, []string{"bcd", "efg"}), array("bcd", "efg")))
 			t.Run("Array", test(0, "a", newMockArray(te.EncodeTypeArray, newMockArray(logf.TypeEncoder.EncodeTypeInt8, 42)), array("42")))
 			t.Run("Object", test(0, "a", newMockArray(te.EncodeTypeObject, newMockObject(logf.Object("b", newMockObject(logf.Int("c", 42))))), object("b", object("c", "42"))))
 		})
@@ -327,9 +355,9 @@ func TestEncoder(tt *testing.T) {
 			t.Run("Float64", test(0, "a", newMockObject(logf.Float64("b", 2.3)), "b", "2.3"))
 			t.Run("Duration", test(0, "a", newMockObject(logf.Duration("b", time.Hour)), "b", "01:00:00"))
 			t.Run("Time", test(0, "a", newMockObject(logf.Time("b", someTime)), "b", "[[Jan  2 03:04:05.000]]"))
-			t.Run("Bytes", test(0, "a", newMockObject(logf.Bytes("b", []byte{1, 2, 3})), "b", "'AQID'"))
-			t.Run("String", test(0, "a", newMockObject(logf.String("b", "c")), "b", "'c'"))
-			t.Run("Error", test(0, "a", newMockObject(logf.NamedError("b", errors.New("c"))), "b", "{{c}}"))
+			t.Run("Bytes", test(0, "a", newMockObject(logf.Bytes("b", []byte{1, 2, 3})), "b", "AQID"))
+			t.Run("String", test(0, "a", newMockObject(logf.String("b", "c")), "b", "c"))
+			t.Run("Error", test(0, "a", newMockObject(logf.NamedError("b", errors.New("c"))), "b", "{{ c }}"))
 			t.Run("Ints8", test(0, "a", newMockObject(logf.Ints8("b", []int8{42})), "b", array("42")))
 			t.Run("Ints16", test(0, "a", newMockObject(logf.Ints16("b", []int16{42})), "b", array("42")))
 			t.Run("Ints32", test(0, "a", newMockObject(logf.Ints32("b", []int32{42})), "b", array("42")))
@@ -342,7 +370,7 @@ func TestEncoder(tt *testing.T) {
 			t.Run("Floats32", test(0, "a", newMockObject(logf.Floats32("b", []float32{42.43, 42.42})), "b", array("42.43", "42.42")))
 			t.Run("Floats64", test(0, "a", newMockObject(logf.Floats64("b", []float64{42.43, 42.42})), "b", array("42.43", "42.42")))
 			t.Run("Durations", test(0, "a", newMockObject(logf.Durations("b", []time.Duration{time.Second, time.Minute})), "b", array("00:00:01", "00:01:00")))
-			t.Run("Strings", test(0, "a", newMockObject(logf.Strings("b", []string{"bcd", "efg"})), "b", array("'bcd'", "'efg'")))
+			t.Run("Strings", test(0, "a", newMockObject(logf.Strings("b", []string{"bcd", "efg"})), "b", array("bcd", "efg")))
 			t.Run("Array", test(0, "a", newMockObject(logf.Array("b", newMockArray(logf.TypeEncoder.EncodeTypeInt8, 42))), "b", array("42")))
 			t.Run("Object", test(0, "a", newMockObject(logf.Object("b", newMockObject(logf.Int("c", 42)))), "b", object("c", "42")))
 			t.Run("Any", test(0, "a", newMockObject(logf.Any("b", anyStruct{42})), "b", "{42}"))
@@ -375,7 +403,7 @@ func TestEncoder(tt *testing.T) {
 		}
 
 		array := func(values ...string) string {
-			return "[" + strings.Join(values, ",") + "]"
+			return "[ " + strings.Join(values, ", ") + " ]"
 		}
 
 		outerObject := func(pairs ...string) string {
@@ -398,12 +426,12 @@ func TestEncoder(tt *testing.T) {
 				return "{}"
 			}
 
-			return "{" + outerObject(pairs...) + "}"
+			return "{ " + outerObject(pairs...) + " }"
 		}
 
 		t.Run("Int", test(0, logf.Int("a", 42), "a", "42"))
-		t.Run("String", test(0, logf.String("a", "oue"), "a", "'oue'"))
-		t.Run("Strings", test(0, logf.Strings("a", []string{"bcd", "efg"}), "a", array("'bcd'", "'efg'")))
+		t.Run("String", test(0, logf.String("a", "oue"), "a", "oue"))
+		t.Run("Strings", test(0, logf.Strings("a", []string{"bcd", "efg"}), "a", array("bcd", "efg")))
 
 		t.Run("Any", func(t tst.Test) {
 			parentTest := test
@@ -416,13 +444,13 @@ func TestEncoder(tt *testing.T) {
 			t.Run("Bool", test(0, "a", bool(true), "true"))
 			t.Run("Array", test(0, "a", newMockArray(logf.TypeEncoder.EncodeTypeBool, false, true), array("false", "true")))
 			t.Run("Object", test(0, "a", newMockObject(logf.Bool("b", true)), innerObject("b", "true")))
-			t.Run("Stringer", test(0, "a", mockStringer("oue"), "'oue'"))
-			t.Run("AnySlice", test(0, "a", []newTypeString{"2", "42"}, array("'2'", "'42'")))
-			t.Run("AnyArray", test(0, "a", [2]newTypeString{"2", "42"}, array("'2'", "'42'")))
+			t.Run("Stringer", test(0, "a", mockStringer("oue"), "oue"))
+			t.Run("AnySlice", test(0, "a", []newTypeString{"2", "42"}, array(`"2"`, `"42"`)))
+			t.Run("AnyArray", test(0, "a", [2]newTypeString{"2", "42"}, array(`"2"`, `"42"`)))
 
 			t.Run("NewType", func(t tst.Test) {
 				t.Run("Int", test(0, "a", newTypeInt(42), "42"))
-				t.Run("String", test(0, "a", newTypeString("abc"), "'abc'"))
+				t.Run("String", test(0, "a", newTypeString("abc"), "abc"))
 			})
 		})
 
@@ -446,7 +474,7 @@ func TestEncoder(tt *testing.T) {
 			t.Run("Float64", test(0, "a", newMockArray(te.EncodeTypeFloat64, 1.2, 2.3), "1.2", "2.3"))
 			t.Run("Duration", test(0, "a", newMockArray(te.EncodeTypeDuration, time.Hour, time.Minute), "01:00:00", "00:01:00"))
 			t.Run("Time", test(0, "a", newMockArray(te.EncodeTypeTime, someTime), "[[Jan  2 03:04:05.000]]"))
-			t.Run("Bytes", test(0, "a", newMockArray(te.EncodeTypeBytes, []byte{1, 2, 3}), "'AQID'"))
+			t.Run("Bytes", test(0, "a", newMockArray(te.EncodeTypeBytes, []byte{1, 2, 3}), "AQID"))
 			t.Run("Ints8", test(0, "a", newMockArray(te.EncodeTypeInts8, []int8{42}), array("42")))
 			t.Run("Ints16", test(0, "a", newMockArray(te.EncodeTypeInts16, []int16{42}), array("42")))
 			t.Run("Ints32", test(0, "a", newMockArray(te.EncodeTypeInts32, []int32{42}), array("42")))
@@ -459,7 +487,7 @@ func TestEncoder(tt *testing.T) {
 			t.Run("Floats32", test(0, "a", newMockArray(te.EncodeTypeFloats32, []float32{42.43, 42.42}), array("42.43", "42.42")))
 			t.Run("Floats64", test(0, "a", newMockArray(te.EncodeTypeFloats64, []float64{42.43, 42.42}), array("42.43", "42.42")))
 			t.Run("Durations", test(0, "a", newMockArray(te.EncodeTypeDurations, []time.Duration{time.Second, time.Minute}), array("00:00:01", "00:01:00")))
-			t.Run("Strings", test(0, "a", newMockArray(te.EncodeTypeStrings, []string{"bcd", "efg"}), array("'bcd'", "'efg'")))
+			t.Run("Strings", test(0, "a", newMockArray(te.EncodeTypeStrings, []string{"bcd", "efg"}), array("bcd", "efg")))
 			t.Run("Array", test(0, "a", newMockArray(te.EncodeTypeArray, newMockArray(logf.TypeEncoder.EncodeTypeInt8, 42)), array("42")))
 			t.Run("Object", test(0, "a", newMockArray(te.EncodeTypeObject, newMockObject(logf.Object("b", newMockObject(logf.Int("c", 42))))), innerObject("b.c", "42")))
 		})
@@ -472,7 +500,7 @@ func TestEncoder(tt *testing.T) {
 
 			t.Run("Empty", test(0, "a", newMockObject()))
 			t.Run("Bool", test(0, "a", newMockObject(logf.Bool("b", true), logf.Bool("c", false)), "a.b", "true", "a.c", "false"))
-			t.Run("Strings", test(0, "a", newMockObject(logf.Strings("b", []string{"bcd", "efg"})), "a.b", array("'bcd'", "'efg'")))
+			t.Run("Strings", test(0, "a", newMockObject(logf.Strings("b", []string{"bcd", "efg"})), "a.b", array("bcd", "efg")))
 			t.Run("Array", test(0, "a", newMockObject(logf.Array("b", newMockArray(logf.TypeEncoder.EncodeTypeInt8, 42))), "a.b", array("42")))
 			t.Run("Object", test(0, "a", newMockObject(logf.Object("b", newMockObject(logf.Int("c", 42), logf.Object("d", newMockObject())))), "a.b.c", "42"))
 			t.Run("Any", test(0, "a", newMockObject(logf.Any("b", anyStruct{42})), "a.b", "{42}"))
@@ -496,7 +524,7 @@ func TestEncoder(tt *testing.T) {
 			Text: "msg",
 		})).ToSucceed()
 
-		t.Expect(buf.String()).ToEqual("Dec 31 23:59:59.999 |WRN| logftxt: failed to load configuration file so using previous defaults error={{cperr}}\nJan  1 00:00:00.000 |ERR| msg\n")
+		t.Expect(buf.String()).ToEqual("Dec 31 23:59:59.999 |WRN| logftxt: failed to load configuration file so using previous defaults error={{ cperr }}\nJan  1 00:00:00.000 |ERR| msg\n")
 	})
 
 	t.Run("ThemeProvideError", func(t tst.Test) {
@@ -518,7 +546,7 @@ func TestEncoder(tt *testing.T) {
 			Text: "msg",
 		})).ToSucceed()
 
-		t.Expect(buf.String()).ToEqual("Dec 31 23:59:59.999 |WRN| logftxt: failed to setup preferred theme so using previous defaults error={{tperr}}\nJan  1 00:00:00.000 |ERR| msg\n")
+		t.Expect(buf.String()).ToEqual("Dec 31 23:59:59.999 |WRN| logftxt: failed to setup preferred theme so using previous defaults error={{ tperr }}\nJan  1 00:00:00.000 |ERR| msg\n")
 	})
 
 	t.Run("NoThemeSetting", func(t tst.Test) {
@@ -582,7 +610,7 @@ func TestEncoder(tt *testing.T) {
 			t.Run("Long", func(t tst.Test) {
 				cfg := logftxt.Config{}
 				cfg.Values.Error.Format = logftxt.ErrorFormatLong
-				test(t, cfg, logf.NamedError("e", mockError{}), "e={{detailed error}}")
+				test(t, cfg, logf.NamedError("e", mockError{}), "e={{ detailed error }}")
 			})
 		})
 	})
@@ -644,6 +672,26 @@ type mockStringer string
 
 func (s mockStringer) String() string {
 	return string(s)
+}
+
+//
+
+func asObject(fields ...logf.Field) logf.ObjectEncoder {
+	return &fieldsAsObject{fields}
+}
+
+// ---
+
+type fieldsAsObject struct {
+	fields []logf.Field
+}
+
+func (f *fieldsAsObject) EncodeLogfObject(enc logf.FieldEncoder) error {
+	for _, field := range f.fields {
+		field.Accept(enc)
+	}
+
+	return nil
 }
 
 // ---

@@ -7,6 +7,9 @@ theme:
     - message
     - fields
     - caller
+  settings:
+    string:
+      quote: auto
   formatting:
     timestamp:
       outer:
@@ -70,20 +73,24 @@ theme:
           suffix: ']'
           style:
             foreground: default
+        inner:
+          prefix: ' '
+          suffix: ' '
         separator:
-          text: ','
+          text: ', '
       object:
         outer:
           prefix: '{'
           suffix: '}'
           style:
             foreground: default
+        inner:
+          prefix: ' '
+          suffix: ' '
         separator:
-          text: ','
+          text: ', '
       string:
         outer:
-          prefix: "'"
-          suffix: "'"
           style:
             foreground: default
       number:
@@ -96,6 +103,9 @@ theme:
           suffix: ']]'
           style:
             foreground: bright-cyan
+        inner:
+          prefix: ' '
+          suffix: ' '
       duration:
         outer:
           style:
@@ -115,5 +125,7 @@ theme:
           style:
             foreground: default
         inner:
+          prefix: ' '
+          suffix: ' '
           style:
             foreground: default

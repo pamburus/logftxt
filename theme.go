@@ -85,8 +85,9 @@ func ListBuiltInThemes() ([]string, error) {
 
 // Theme holds formatting and styling settings.
 type Theme struct {
-	items []item
-	fmt   fmtItems
+	items    []item
+	fmt      fmtItems
+	settings themecfg.Settings
 }
 
 func (t *Theme) toEncoderOptions(o *encoderOptions) {
@@ -314,8 +315,9 @@ func (*itemFields) encode(e *entryEncoder) {
 	} else {
 		le := e.buf.Len()
 		for _, field := range e.entry.DerivedFields {
-			e.appendSeparator()
+			pos := e.appendSeparator()
 			field.Accept(e)
+			e.confirmSeparator(pos)
 		}
 
 		if n := e.buf.Len() - le; n != 0 {
@@ -327,8 +329,9 @@ func (*itemFields) encode(e *entryEncoder) {
 
 	// Entry's fields.
 	for _, field := range e.entry.Fields {
-		e.appendSeparator()
+		pos := e.appendSeparator()
 		field.Accept(e)
+		e.confirmSeparator(pos)
 	}
 }
 
@@ -427,6 +430,7 @@ func newTheme(cfg *themecfg.Theme) *Theme {
 			newFmtItem(cfg.Formatting.Types.Null),
 			newFmtItem(cfg.Formatting.Types.Error),
 		},
+		cfg.Settings,
 	}
 
 	if theme.fmt.Key.separator.text == "" {

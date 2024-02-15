@@ -7,6 +7,7 @@ import (
 	"reflect"
 	"sync"
 	"time"
+	"unicode/utf8"
 	"unsafe"
 
 	"github.com/ssgreg/logf"
@@ -57,6 +58,7 @@ func (e *encoder) getEntryEncoder() *entryEncoder {
 			logf.NewCache(100),
 			0,
 			nil,
+			0,
 			0,
 			newStyler().Disabled(e.color == ColorNever),
 		}
@@ -190,18 +192,16 @@ type entryEncoder struct {
 	startBufLen int
 	objectKeys  []string
 	objectScope int
+	lastPos     int
 
 	styler styler
 }
 
 func (e *entryEncoder) encode() error {
 	for _, item := range e.theme.items {
-		e.appendSeparator()
+		pos := e.appendSeparator()
 		item.encode(e)
-	}
-
-	if !e.empty() && e.buf.Back() == ' ' {
-		e.buf.Data = e.buf.Data[:len(e.buf.Data)-1]
+		e.confirmSeparator(pos)
 	}
 
 	e.buf.AppendByte('\n')
@@ -609,7 +609,11 @@ func (e *entryEncoder) EncodeTypeTime(v time.Time) {
 
 func (e *entryEncoder) EncodeTypeString(v string) {
 	e.theme.fmt.String.encode(e, func() {
-		e.buf.AppendString(v)
+		if v == "null" {
+			e.buf.AppendString(`"null"`)
+		} else {
+			e.appendAutoQuotedString(v)
+		}
 	})
 }
 
@@ -730,7 +734,6 @@ func (e *entryEncoder) EncodeTypeObject(v logf.ObjectEncoder) {
 }
 
 func (e *entryEncoder) EncodeTypeUnsafeBytes(v unsafe.Pointer) {
-	e.appendSeparator()
 	e.buf.Data = append(e.buf.Data, *(*[]byte)(v)...)
 }
 
@@ -765,10 +768,32 @@ func (e *entryEncoder) appendField(k string, appendValue func()) {
 	})
 }
 
-func (e *entryEncoder) appendSeparator() {
-	if !e.empty() && e.buf.Back() != ' ' {
+func (e *entryEncoder) appendSeparator() int {
+	if !e.empty() && e.buf.Len() == e.lastPos {
 		e.buf.AppendByte(' ')
 	}
+
+	return e.buf.Len()
+}
+
+func (e *entryEncoder) appendCustomSeparator(fn func()) int {
+	if !e.empty() && e.buf.Len() == e.lastPos {
+		fn()
+	}
+
+	return e.buf.Len()
+}
+
+func (e *entryEncoder) confirmSeparator(start int) bool {
+	if e.buf.Len() == start && !e.empty() {
+		e.buf.Data = e.buf.Data[:e.lastPos]
+
+		return false
+	}
+
+	e.lastPos = e.buf.Len()
+
+	return true
 }
 
 func (e *entryEncoder) empty() bool {
@@ -778,11 +803,24 @@ func (e *entryEncoder) empty() bool {
 func (e *entryEncoder) addKey(k string) {
 	e.theme.fmt.Key.encode(e, func() {
 		for _, prefix := range e.objectKeys[e.objectScope:] {
-			e.buf.AppendString(prefix)
+			e.appendAutoQuotedString(prefix)
 			e.theme.fmt.Key.separator.encode(e)
 		}
-		e.buf.AppendString(k)
+		e.appendAutoQuotedString(k)
 	})
+}
+
+func (e *entryEncoder) appendAutoQuotedString(v string) {
+	switch {
+	case len(v) == 0:
+		e.buf.AppendString(`""`)
+	case stringNeedsQuoting(v):
+		e.buf.AppendByte('"')
+		_ = logf.EscapeString(e.buf, v)
+		e.buf.AppendByte('"')
+	default:
+		e.buf.AppendString(v)
+	}
 }
 
 func (e *entryEncoder) appendTimestamp(t time.Time) {
@@ -1208,19 +1246,16 @@ func (e *objectEncoder) EncodeFieldObject(k string, v logf.ObjectEncoder) {
 }
 
 func (e *objectEncoder) encode(encodeField func()) {
-	initialOffset := e.e.buf.Len()
-	if e.n != 0 {
-		if e.e.flattenObjects && e.e.objectScope == 0 {
-			e.e.appendSeparator()
-		} else {
-			e.e.theme.fmt.Object.separator.encode(e.e)
-		}
-	}
-	fieldOffset := e.e.buf.Len()
-	encodeField()
-	if fieldOffset == e.e.buf.Len() {
-		e.e.buf.Data = e.e.buf.Data[:initialOffset]
+	var pos int
+	if e.e.flattenObjects && e.e.objectScope == 0 {
+		pos = e.e.appendSeparator()
 	} else {
+		pos = e.e.appendCustomSeparator(func() {
+			e.e.theme.fmt.Object.separator.encode(e.e)
+		})
+	}
+	encodeField()
+	if e.e.confirmSeparator(pos) {
 		e.n++
 	}
 }
@@ -1237,6 +1272,35 @@ func (a anyArray) EncodeLogfArray(enc logf.TypeEncoder) error {
 	}
 
 	return nil
+}
+
+// ---
+
+func stringNeedsQuoting(s string) bool {
+	looksLikeNumber := true
+	nDots := 0
+
+	for _, r := range s {
+		switch r {
+		case '.':
+			nDots++
+		case '=', '"', ' ', utf8.RuneError:
+			return true
+		default:
+			if r < ' ' {
+				return true
+			}
+			if !isDigit(r) {
+				looksLikeNumber = false
+			}
+		}
+	}
+
+	return looksLikeNumber && nDots <= 1
+}
+
+func isDigit(r rune) bool {
+	return r >= '0' && r <= '9'
 }
 
 // ---
