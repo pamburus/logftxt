@@ -1,0 +1,113 @@
+theme:
+  version: '1.0'
+  items:
+    - timestamp
+    - level
+    - logger
+    - message
+    - fields
+    - caller
+  formatting:
+    timestamp:
+      outer:
+        style:
+          modes: [+faint]
+    level:
+      all:
+      debug:
+        text: 'DBG'
+      info:
+        text: 'INF'
+        inner:
+          style:
+            foreground: green
+      warning:
+        text: 'WRN'
+        outer:
+          style:
+            foreground: yellow
+      error:
+        text: 'ERR'
+        outer:
+          style:
+            foreground: bright-red
+    logger:
+      outer:
+        suffix: ':'
+        style:
+          modes: [+faint]
+    message:
+      outer:
+        style:
+          modes: []
+    field:
+      separator:
+        text: '='
+        style:
+          modes: [+faint]
+    key:
+      outer:
+        style:
+          modes: [+faint]
+    caller:
+      outer:
+        prefix: '→ '
+        style:
+          modes: [+italic,+faint]
+    types:
+      array:
+        outer:
+          prefix: '['
+          suffix: ']'
+          style:
+            modes: [+faint]
+        inner:
+          style:
+            modes: [-faint]
+        separator:
+          text: ','
+          style:
+            modes: [+faint]
+      object:
+        outer:
+          prefix: '{'
+          suffix: '}'
+          style:
+            modes: [+faint]
+        inner:
+          prefix: ' '
+          suffix: ' '
+          style:
+            modes: [-faint]
+        separator:
+          text: ' '
+      string:
+        inner:
+          style:
+            foreground: default
+      number:
+        outer:
+          style:
+            foreground: default
+      time:
+        outer:
+          style:
+            foreground: default
+      duration:
+        outer:
+          style:
+            foreground: default
+      boolean:
+        outer:
+          style:
+            foreground: default
+      'null':
+        outer:
+          style:
+            foreground: default
+      error:
+        outer:
+          prefix: '"'
+          suffix: '"'
+          style:
+            foreground: bright-red
