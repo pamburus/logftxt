@@ -813,11 +813,17 @@ func (e *entryEncoder) addKey(k string) {
 func (e *entryEncoder) appendAutoQuotedString(v string) {
 	switch {
 	case len(v) == 0:
-		e.buf.AppendString(`""`)
+		e.theme.fmt.Quotes.encode(e, func() {
+			e.buf.AppendString(`""`)
+		})
 	case stringNeedsQuoting(v):
-		e.buf.AppendByte('"')
-		_ = logf.EscapeString(e.buf, v)
-		e.buf.AppendByte('"')
+		e.theme.fmt.Quotes.encode(e, func() {
+			e.buf.AppendByte('"')
+		})
+		e.appendEscapedString(v)
+		e.theme.fmt.Quotes.encode(e, func() {
+			e.buf.AppendByte('"')
+		})
 	default:
 		e.buf.AppendString(v)
 	}
@@ -837,6 +843,68 @@ func (e *entryEncoder) appendCaller(caller logf.EntryCaller) {
 
 func (e *entryEncoder) appendError(v error) {
 	e.buf.Data = e.encodeError(e.buf.Data, v)
+}
+
+func (e *entryEncoder) appendEscapedString(s string) {
+	p := 0
+
+	for i := 0; i < len(s); {
+		c := s[i]
+		switch {
+		case c < utf8.RuneSelf && c >= 0x20 && c != '\\' && c != '"':
+			i++
+
+		case c < utf8.RuneSelf:
+			e.buf.AppendString(s[p:i])
+			switch c {
+			case '\t':
+				e.theme.fmt.Special.encode(e, func() {
+					e.buf.AppendString(`\t`)
+				})
+			case '\r':
+				e.theme.fmt.Special.encode(e, func() {
+					e.buf.AppendString(`\r`)
+				})
+			case '\n':
+				e.theme.fmt.Special.encode(e, func() {
+					e.buf.AppendString(`\n`)
+				})
+			case '\\':
+				e.theme.fmt.Special.encode(e, func() {
+					e.buf.AppendByte('\\')
+				})
+				e.buf.AppendByte('\\')
+			case '"':
+				e.theme.fmt.Special.encode(e, func() {
+					e.buf.AppendByte('\\')
+				})
+				e.buf.AppendByte('"')
+			default:
+				e.theme.fmt.Special.encode(e, func() {
+					e.buf.AppendString(`\u00`)
+					e.buf.AppendByte(hex[c>>4])
+					e.buf.AppendByte(hex[c&0xf])
+				})
+			}
+			i++
+			p = i
+
+		default:
+			v, wd := utf8.DecodeRuneInString(s[i:])
+			if v == utf8.RuneError && wd == 1 {
+				e.buf.AppendString(s[p:i])
+				e.theme.fmt.Special.encode(e, func() {
+					e.buf.AppendString(`\ufffd`)
+				})
+				i++
+				p = i
+			} else {
+				i += wd
+			}
+		}
+	}
+
+	e.buf.AppendString(s[p:])
 }
 
 // ---
@@ -1320,3 +1388,4 @@ func newEncoder(options encoderOptions) *encoder {
 // ---
 
 const loggerName = "logftxt"
+const hex = "0123456789abcdef"

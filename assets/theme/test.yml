@@ -90,6 +90,8 @@ theme:
         inner:
           style:
             foreground: default
+      special:
+        modes: [+faint]
       number:
         outer:
           style:

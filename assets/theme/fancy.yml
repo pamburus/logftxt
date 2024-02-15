@@ -87,20 +87,20 @@ theme:
           prefix: '['
           suffix: ']'
           style:
-            foreground: magenta
+            foreground: bright-magenta
         inner:
           prefix: ''
           suffix: ''
         separator:
           text: ','
           style:
-            foreground: magenta
+            foreground: bright-magenta
       object:
         outer:
           prefix: '{'
           suffix: '}'
           style:
-            foreground: cyan
+            foreground: bright-magenta
         inner:
           prefix: ' '
           suffix: ' '
@@ -110,6 +110,10 @@ theme:
         outer:
           style:
             foreground: default
+      quotes:
+        modes: [+faint]
+      special:
+        modes: [+faint]
       number:
         outer:
           style:

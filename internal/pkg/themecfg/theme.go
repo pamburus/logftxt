@@ -130,6 +130,8 @@ type FormattingTypes struct {
 	Array    formatting.Item `yaml:"array"`
 	Object   formatting.Item `yaml:"object"`
 	String   formatting.Item `yaml:"string"`
+	Quotes   Style           `yaml:"quotes"`
+	Special  Style           `yaml:"special"`
 	Number   formatting.Item `yaml:"number"`
 	Boolean  formatting.Item `yaml:"boolean"`
 	Time     formatting.Item `yaml:"time"`

@@ -386,6 +386,8 @@ type fmtItems struct {
 	Array     fmtItem
 	Object    fmtItem
 	String    fmtItem
+	Quotes    stylePatch
+	Special   stylePatch
 	Number    fmtItem
 	Boolean   fmtItem
 	Time      fmtItem
@@ -423,6 +425,8 @@ func newTheme(cfg *themecfg.Theme) *Theme {
 			newFmtItem(cfg.Formatting.Types.Array),
 			newFmtItem(cfg.Formatting.Types.Object),
 			newFmtItem(cfg.Formatting.Types.String),
+			newStylePatch(cfg.Formatting.Types.Quotes),
+			newStylePatch(cfg.Formatting.Types.Special),
 			newFmtItem(cfg.Formatting.Types.Number),
 			newFmtItem(cfg.Formatting.Types.Boolean),
 			newFmtItem(cfg.Formatting.Types.Time),

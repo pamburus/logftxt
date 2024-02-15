@@ -211,6 +211,7 @@ func TestEncoder(tt *testing.T) {
 			t.Run("LikeFloat", test(0, logf.String("a", "42.1"), "a", `"42.1"`))
 			t.Run("LikeIPAddress", test(0, logf.String("a", "192.168.0.1"), "a", "192.168.0.1"))
 			t.Run("Null", test(0, logf.String("a", "null"), "a", `"null"`))
+			t.Run("Special", test(0, logf.String("a", "-\x00-\n-\r-\t-\\-\xf3-\"\xff\"-ё"), "a", `"-\u0000-\n-\r-\t-\\-\ufffd-\"\ufffd\"-ё"`))
 		})
 		t.Run("Duration", test(0, logf.Duration("a", time.Second), "a", "00:00:01"))
 		t.Run("Error", test(0, logf.Error(errors.New("oops")), "error", "{{ oops }}"))
