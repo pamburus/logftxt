@@ -11,6 +11,8 @@ import (
 	"unsafe"
 
 	"github.com/ssgreg/logf"
+
+	"github.com/pamburus/logftxt/internal/pkg/quoting"
 )
 
 // NewEncoder constructs a new logf.Encoder that encodes log messages in a human-readable text representation.
@@ -816,7 +818,7 @@ func (e *entryEncoder) appendAutoQuotedString(v string) {
 		e.theme.fmt.Quotes.encode(e, func() {
 			e.buf.AppendString(`""`)
 		})
-	case stringNeedsQuoting(v):
+	case quoting.IsNeeded(v):
 		e.theme.fmt.Quotes.encode(e, func() {
 			e.buf.AppendByte('"')
 		})
@@ -1340,35 +1342,6 @@ func (a anyArray) EncodeLogfArray(enc logf.TypeEncoder) error {
 	}
 
 	return nil
-}
-
-// ---
-
-func stringNeedsQuoting(s string) bool {
-	looksLikeNumber := true
-	nDots := 0
-
-	for _, r := range s {
-		switch r {
-		case '.':
-			nDots++
-		case '=', '"', ' ', utf8.RuneError:
-			return true
-		default:
-			if r < ' ' {
-				return true
-			}
-			if !isDigit(r) {
-				looksLikeNumber = false
-			}
-		}
-	}
-
-	return looksLikeNumber && nDots <= 1
-}
-
-func isDigit(r rune) bool {
-	return r >= '0' && r <= '9'
 }
 
 // ---
