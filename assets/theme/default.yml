@@ -37,21 +37,19 @@ theme:
         outer:
           style:
             foreground: yellow
-            background: yellow
+            background: black
             modes: [+reversed,-faint]
         inner:
           style:
-            background: default
       error:
         text: 'ERR'
         outer:
           style:
             foreground: bright-red
-            background: bright-red
+            background: black
             modes: [+reversed,-faint]
         inner:
           style:
-            background: default
     logger:
       outer:
         suffix: ':'
@@ -87,23 +85,25 @@ theme:
           prefix: '['
           suffix: ']'
           style:
-            foreground: bright-magenta
+            modes: [+bold]
         inner:
           prefix: ''
           suffix: ''
-        separator:
-          text: ','
           style:
-            foreground: bright-magenta
+            modes: [-bold]
+        separator:
+          text: ' '
       object:
         outer:
           prefix: '{'
           suffix: '}'
           style:
-            foreground: bright-magenta
+            modes: [+bold]
         inner:
           prefix: ' '
           suffix: ' '
+          style:
+            modes: [-bold]
         separator:
           text: ' '
       string:
@@ -131,7 +131,7 @@ theme:
       boolean:
         outer:
           style:
-            foreground: yellow
+            foreground: red
       'null':
         outer:
           style:
