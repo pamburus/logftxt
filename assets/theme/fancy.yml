@@ -46,7 +46,6 @@ theme:
         outer:
           style:
             foreground: bright-red
-            background: black
             modes: [+reversed,-faint]
         inner:
           style:
