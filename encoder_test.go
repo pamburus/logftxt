@@ -557,7 +557,7 @@ func TestEncoder(tt *testing.T) {
 			Text: "msg",
 		})).ToSucceed()
 
-		t.Expect(buf.String()).ToEqual("|ERR| msg\n")
+		t.Expect(buf.String()).ToEqual("[ERR] msg\n")
 	})
 
 	t.Run("Config", func(t tst.Test) {

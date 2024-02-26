@@ -15,8 +15,8 @@ theme:
     level:
       all:
         outer:
-          prefix: '|'
-          suffix: '|'
+          prefix: '['
+          suffix: ']'
           style:
             modes: [+faint]
         inner:
