@@ -131,7 +131,7 @@ theme:
       boolean:
         outer:
           style:
-            foreground: red
+            foreground: yellow
       'null':
         outer:
           style:
