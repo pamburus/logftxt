@@ -32,7 +32,7 @@ func BenchmarkEncoder(b *testing.B) {
 	testSameAndNew := func(encoder logf.Encoder) func(b *testing.B) {
 		return func(b *testing.B) {
 			b.Run("SameLoggerID", func(b *testing.B) {
-				testOne(b, encoder, func(entry *logf.Entry) {})
+				testOne(b, encoder, func(*logf.Entry) {})
 			})
 			b.Run("NewLoggerID", func(b *testing.B) {
 				testOne(b, encoder, func(entry *logf.Entry) {
