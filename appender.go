@@ -3,11 +3,10 @@ package logftxt
 
 import (
 	"io"
-	"os"
 
 	"github.com/ssgreg/logf"
 
-	"github.com/pamburus/logftxt/internal/pkg/tty"
+	"github.com/pamburus/ansitty"
 )
 
 // NewAppender returns a new logf.Appender with the given Writer and
@@ -17,10 +16,8 @@ func NewAppender(w io.Writer, options ...AppenderOption) logf.Appender {
 	o.color = o.color.resolved(o.env)
 
 	if o.color == ColorAuto {
-		if f, ok := w.(*os.File); ok {
-			if tty.EnableSeqTTY(f, true) {
-				o.color = ColorAlways
-			}
+		if ansitty.Enable(w) {
+			o.color = ColorAlways
 		}
 	}
 
