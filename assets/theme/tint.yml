@@ -60,25 +60,20 @@ theme:
           prefix: '['
           suffix: ']'
           style:
-            modes: [+faint]
         inner:
           style:
-            modes: [-faint]
         separator:
-          text: ','
+          text: ' '
           style:
-            modes: [+faint]
       object:
         outer:
           prefix: '{'
           suffix: '}'
           style:
-            modes: [+faint]
         inner:
           prefix: ' '
           suffix: ' '
           style:
-            modes: [-faint]
         separator:
           text: ' '
       string:
