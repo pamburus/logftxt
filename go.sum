@@ -6,6 +6,8 @@ github.com/kr/pretty v0.1.0/go.mod h1:dAy3ld7l9f0ibDNOQOHHMYYIIbhfbHSm3C4ZsoJORN
 github.com/kr/pty v1.1.1/go.mod h1:pFQYn66WHrOpPYNljwOMqo10TkYh1fy3cYio2l3bCsQ=
 github.com/kr/text v0.1.0 h1:45sCR5RtlFHMR4UwH9sdQ5TC8v0qDQCHnXt+kaKSTVE=
 github.com/kr/text v0.1.0/go.mod h1:4Jbv+DJW3UT/LiOwJeYQe1efqtUx/iVham/4vfdArNI=
+github.com/pamburus/ansitty v0.1.1 h1:m6QJnzCPFbg8OkTfvD6RgA/D7NKYef44L13D1uFXERA=
+github.com/pamburus/ansitty v0.1.1/go.mod h1:mwxjJmFZvk83vZpB3sHaXXaJzWJl0j5M7IyYaQ50/co=
 github.com/pamburus/go-ansi-esc v0.4.2 h1:gMGDb7o0sTXsd3xO+ga2ooAW9Yqmr2G8/J7e0geR6iA=
 github.com/pamburus/go-ansi-esc v0.4.2/go.mod h1:7SQvSSfhtmvwYrPIGLSVtNV/ntk38tCL+8Tq3Y4I7XY=
 github.com/pamburus/go-tst v0.3.1 h1:j1M7Ga9spqwl6QA43eXSA3stbItg3gfl1uyNrfaBMXc=
@@ -19,8 +21,8 @@ github.com/stretchr/testify v1.7.0 h1:nwc3DEeHmmLAfoZucVR881uASk0Mfjw8xYJ99tb5Cc
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/veggiemonk/strcase v0.0.0-20240108101409-9f441287a9a9 h1:HSUBj3uiH23a6vDqSwR7CGawiUHQf0rIBinQXdghGws=
 github.com/veggiemonk/strcase v0.0.0-20240108101409-9f441287a9a9/go.mod h1:FhMPOXYKshhGzQYJHiD5+zsWaVMP2NGpi/HfPu14QPA=
-golang.org/x/sys v0.16.0 h1:xWw16ngr6ZMtmxDyKyIgsE93KNKz5HKmMa3b8ALHidU=
-golang.org/x/sys v0.16.0/go.mod h1:/VUhepiaJMQUp4+oa/7Zr1D23ma6VTLIYjOOTFZPUcA=
+golang.org/x/sys v0.17.0 h1:25cE3gD+tdBA7lp7QfhuV+rJiE9YXTcS3VG1SqssI/Y=
+golang.org/x/sys v0.17.0/go.mod h1:/VUhepiaJMQUp4+oa/7Zr1D23ma6VTLIYjOOTFZPUcA=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 h1:qIbj1fsPNlZgppZ+VLlY7N33q108Sa+fhmuc+sWQYwY=
 gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
