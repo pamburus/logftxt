@@ -3,7 +3,7 @@ module github.com/pamburus/logftxt
 go 1.20.0
 
 require (
-	github.com/pamburus/ansitty v0.1.1
+	github.com/pamburus/ansitty v0.1.2
 	github.com/pamburus/go-ansi-esc v0.4.2
 	github.com/pamburus/go-tst v0.3.1
 	github.com/ssgreg/logf v1.4.2
