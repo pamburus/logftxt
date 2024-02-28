@@ -1,6 +1,6 @@
 module github.com/pamburus/logftxt/benchmark
 
-go 1.20.0
+go 1.18.0
 
 replace github.com/pamburus/logftxt => ../..
 

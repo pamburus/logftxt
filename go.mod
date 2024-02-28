@@ -1,6 +1,6 @@
 module github.com/pamburus/logftxt
 
-go 1.20.0
+go 1.18.0
 
 require (
 	github.com/pamburus/ansitty v0.1.2
