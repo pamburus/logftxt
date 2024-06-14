@@ -215,6 +215,7 @@ func TestEncoder(tt *testing.T) {
 		})
 		t.Run("Duration", test(0, logf.Duration("a", time.Second), "a", "00:00:01"))
 		t.Run("Error", test(0, logf.Error(errors.New("oops")), "error", "{{ oops }}"))
+		t.Run("NilError", test(0, logf.Error(nil), "error", "{{ <nil> }}"))
 		t.Run("Time", test(0, logf.Time("t", someTime), "t", "[[Jan  2 03:04:05.000]]"))
 		t.Run("Ints", test(0, logf.Ints("a", []int{42}), "a", array("42")))
 		t.Run("Ints8", test(0, logf.Ints8("a", []int8{42}), "a", array("42")))

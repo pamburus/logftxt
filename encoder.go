@@ -844,7 +844,11 @@ func (e *entryEncoder) appendCaller(caller logf.EntryCaller) {
 }
 
 func (e *entryEncoder) appendError(v error) {
-	e.buf.Data = e.encodeError(e.buf.Data, v)
+	if v == nil {
+		e.buf.AppendString("<nil>")
+	} else {
+		e.buf.Data = e.encodeError(e.buf.Data, v)
+	}
 }
 
 func (e *entryEncoder) appendEscapedString(s string) {
