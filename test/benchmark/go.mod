@@ -1,4 +1,4 @@
-module github.com/pamburus/logftxt/benchmark
+module github.com/pamburus/logftxt/test/benchmark
 
 go 1.22
 
