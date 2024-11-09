@@ -157,13 +157,14 @@ func TestEncoder(tt *testing.T) {
 			tag := tst.CallerLine(skip + 1)
 
 			return func(t tst.Test) {
+				t.AddLineTags(tag)
 				buf := logf.NewBuffer()
 				appender := fixedTimestampAppender{logftxt.NewAppender(buf, config, theme, envColor(false), logftxt.FlattenObjects(false)), someTime}
 				writer := logf.NewUnbufferedEntryWriter(appender)
 				logger := logf.NewLogger(logf.LevelDebug, writer).WithName("me")
 				logger.Info("msg", field)
 				t.Expect(appender.Flush()).ToSucceed()
-				t.WithLineTag(tag).Expect(buf.String()).ToEqual(
+				t.Expect(buf.String()).ToEqual(
 					fmt.Sprintf("Jan  2 03:04:05.000 |INF| me: msg %s=%s\n", key, value),
 				)
 			}
@@ -384,6 +385,7 @@ func TestEncoder(tt *testing.T) {
 			tag := tst.CallerLine(skip + 1)
 
 			return func(t tst.Test) {
+				t.AddLineTags(tag)
 				buf := logf.NewBuffer()
 				appender := fixedTimestampAppender{logftxt.NewAppender(buf, config, theme, envColor(false), logftxt.FlattenObjects(true)), someTime}
 				writer := logf.NewUnbufferedEntryWriter(appender)
@@ -398,7 +400,7 @@ func TestEncoder(tt *testing.T) {
 					}
 				}
 				t.Expect(appender.Flush()).ToSucceed()
-				t.WithLineTag(tag).Expect(buf.String()).ToEqual(
+				t.Expect(buf.String()).ToEqual(
 					fmt.Sprintf("Jan  2 03:04:05.000 |INF| me: msg%s\n", field),
 				)
 			}
