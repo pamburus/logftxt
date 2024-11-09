@@ -5,7 +5,7 @@ go 1.22
 replace github.com/pamburus/logftxt => ../..
 
 require (
-	github.com/pamburus/logftxt v0.0.0-00010101000000-000000000000
+	github.com/pamburus/logftxt v0.7.0
 	github.com/ssgreg/logf v1.4.2
 	github.com/ssgreg/logftext v1.1.1
 )
