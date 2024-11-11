@@ -96,7 +96,7 @@ type mockFile struct {
 }
 
 func (f mockFile) Stat() (fs.FileInfo, error) {
-	return nil, nil
+	return nil, errNotImplemented
 }
 
 func (f mockFile) Close() error {
@@ -105,7 +105,10 @@ func (f mockFile) Close() error {
 
 // ---
 
-var errOpen = errors.New("mock open err")
+var (
+	errOpen           = errors.New("mock open err")
+	errNotImplemented = errors.New("not implemented")
+)
 
 //go:embed assets/config.yml
 var mockConfigData []byte

@@ -96,6 +96,7 @@ func (s Setup) CutSuffix(path, suffix string) (string, bool) {
 	if len(suffix) == 0 {
 		return path, true
 	}
+
 	if s.isSeparator(suffix[0]) {
 		return "", false
 	}
@@ -113,18 +114,18 @@ func (s Setup) CutSuffix(path, suffix string) (string, bool) {
 	return part, true
 }
 
-// ExplicitlyRelative checks if p is a relative path and ensures it has '.' or '..' prefix.
+// ExplicitlyRelative checks if prefix is a relative path and ensures it has '.' or '..' prefix.
 // If it doesn't, '.' prefix is added. If it is absolute, original value is returned.
-func (s Setup) ExplicitlyRelative(p string) string {
-	if s.isAbs(p) {
-		return p
+func (s Setup) ExplicitlyRelative(path string) string {
+	if s.isAbs(path) {
+		return path
 	}
 
-	if s.HasPrefix(p, ".") || s.HasPrefix(p, "..") {
-		return p
+	if s.HasPrefix(path, ".") || s.HasPrefix(path, "..") {
+		return path
 	}
 
-	return fmt.Sprintf(".%c%s", s.separator, p)
+	return fmt.Sprintf(".%c%s", s.separator, path)
 }
 
 func (s Setup) isSeparator(c byte) bool {

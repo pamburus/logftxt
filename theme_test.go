@@ -32,7 +32,7 @@ func TestTheme(tt *testing.T) {
 		})
 
 		t.Run("Invalid", func(t tst.Test) {
-			t.Expect(logftxt.ReadTheme(bytes.NewBuffer([]byte("asdasdh")))).ToFail()
+			t.Expect(logftxt.ReadTheme(bytes.NewBufferString("asdasdh"))).ToFail()
 		})
 	})
 

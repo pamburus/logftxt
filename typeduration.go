@@ -36,6 +36,7 @@ func DurationAsHMS(options ...DurationOption) DurationEncodeFunc {
 	return func(buf []byte, v time.Duration) []byte {
 		if v < 0 {
 			v = v.Abs()
+
 			buf = append(buf, '-')
 		}
 
@@ -46,6 +47,7 @@ func DurationAsHMS(options ...DurationOption) DurationEncodeFunc {
 		if hours < 10 {
 			buf = append(buf, '0')
 		}
+
 		buf = strconv.AppendInt(buf, hours, 10)
 
 		buf = append(buf, ':')
@@ -53,6 +55,7 @@ func DurationAsHMS(options ...DurationOption) DurationEncodeFunc {
 		if minutes < 10 {
 			buf = append(buf, '0')
 		}
+
 		buf = strconv.AppendInt(buf, minutes, 10)
 
 		buf = append(buf, ':')
@@ -60,6 +63,7 @@ func DurationAsHMS(options ...DurationOption) DurationEncodeFunc {
 		if seconds < 10*time.Second {
 			buf = append(buf, '0')
 		}
+
 		buf = strconv.AppendFloat(buf, seconds.Seconds(), 'f', int(opts.precision), 64)
 
 		return buf

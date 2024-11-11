@@ -37,7 +37,9 @@ func (s *styler) Use(style stylePatch, buf *logf.Buffer, f func()) {
 	if s.style.UpdateBy(style) {
 		seq := old.diffToSequence(s.style, s.seq[0:0])
 		buf.Data = seq.Render(buf.Data)
+
 		f()
+
 		seq = s.style.diffToSequence(old, s.seq[0:0])
 		buf.Data = seq.Render(buf.Data)
 		s.style = old
@@ -70,14 +72,17 @@ type style struct {
 
 func (s *style) UpdateBy(other stylePatch) bool {
 	updated := false
+
 	if !other.Background.IsZero() && other.Background != s.Background {
 		s.Background = other.Background
 		updated = true
 	}
+
 	if !other.Foreground.IsZero() && other.Foreground != s.Foreground {
 		s.Foreground = other.Foreground
 		updated = true
 	}
+
 	if other.HasModes {
 		oldModes := s.Modes
 		s.Modes = s.Modes.WithOther(other.Modes[0], sgr.ModeAdd)
@@ -103,6 +108,7 @@ func (s *style) diffToSequence(other style, seq sgr.Sequence) sgr.Sequence {
 	if other.Background != s.Background {
 		seq = append(seq, other.Background)
 	}
+
 	if other.Foreground != s.Foreground {
 		seq = append(seq, other.Foreground)
 	}

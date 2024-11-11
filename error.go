@@ -5,6 +5,8 @@ import "fmt"
 // ---
 
 // ErrFileNotFound is an error that is returned in case file is not found.
+//
+//nolint:errname // We do not want to break backward compatibility.
 type ErrFileNotFound struct {
 	Filename string
 	cause    error

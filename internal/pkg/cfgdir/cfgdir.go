@@ -2,6 +2,7 @@
 package cfgdir
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 )
@@ -10,7 +11,7 @@ import (
 func Locate() (string, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to get user home directory: %w", err)
 	}
 
 	return filepath.Join(homeDir, ".config", "logftxt"), nil

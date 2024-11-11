@@ -46,5 +46,7 @@ func CallerLong() CallerEncodeFunc {
 
 // ---
 
-var _ EncoderOption = CallerEncodeFunc(nil)
-var _ AppenderOption = CallerEncodeFunc(nil)
+var (
+	_ EncoderOption  = CallerEncodeFunc(nil)
+	_ AppenderOption = CallerEncodeFunc(nil)
+)

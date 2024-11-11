@@ -57,7 +57,7 @@ type systemFS struct{}
 func (f *systemFS) ConfigDir() (fs.FS, error) {
 	dir, err := cfgdir.Locate()
 	if err != nil {
-		return nil, fmt.Errorf("failed to locate configuration directory: %v", err)
+		return nil, fmt.Errorf("failed to locate configuration directory: %w", err)
 	}
 
 	return os.DirFS(dir), nil
@@ -65,7 +65,12 @@ func (f *systemFS) ConfigDir() (fs.FS, error) {
 
 func (f *systemFS) Open(filename string) (fs.File, error) {
 	if filepath.IsAbs(filename) || pathx.OS().HasPrefix(filename, ".") || pathx.OS().HasPrefix(filename, "..") {
-		return os.Open(filename) //nolint:gosec
+		result, err := os.Open(filename) //nolint:gosec // it is ok to open theme files requested by the user
+		if err != nil {
+			return nil, fmt.Errorf("os: %w", err)
+		}
+
+		return result, nil
 	}
 
 	configDir, err := f.ConfigDir()
@@ -73,5 +78,10 @@ func (f *systemFS) Open(filename string) (fs.File, error) {
 		return nil, err
 	}
 
-	return configDir.Open(filename)
+	result, err := configDir.Open(filename)
+	if err != nil {
+		return nil, fmt.Errorf("config dir: %w", err)
+	}
+
+	return result, nil
 }

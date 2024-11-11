@@ -16,40 +16,118 @@ linters-settings:
   lll:
     line-length: 140
   nolintlint:
-    allow-unused: false # report any unused nolint directives
+    allow-unused: true # report any unused nolint directives
     require-explanation: true # require an explanation for nolint directives
-    require-specific: false # don't require nolint directives to be specific about which linter is being skipped
+    require-specific: true # don't require nolint directives to be specific about which linter is being skipped
+  tagliatelle:
+    # Check the struck tag name case.
+    case:
+      # Use the struct field name to check the name of the struct tag.
+      # Default: false
+      use-field-name: true
+      rules:
+        # Any struct tag type can be used.
+        # Support string case: `camel`, `pascal`, `kebab`, `snake`, `upperSnake`, `goCamel`, `goPascal`, `goKebab`, `goSnake`, `upper`, `lower`, `header`.
+        json: kebab
+        yaml: kebab
 
 linters:
   # please, do not use `enable-all`: it's deprecated and will be removed soon.
   # inverted configuration with `enable-all` and `disable` is not scalable during updates of golangci-lint
   disable-all: true
   enable:
+    - asasalint
     - asciicheck
+    - bidichk
+    - bodyclose
+    - canonicalheader
+    - containedctx
+    - contextcheck
     - copyloopvar
+    - decorder
+    - dogsled
     - dupl
+    - dupword
+    - durationcheck
     - errcheck
+    - errchkjson
+    - errname
+    - errorlint
+    - fatcontext
+    - forbidigo
+    - forcetypeassert
+    - ginkgolinter
+    - gocheckcompilerdirectives
+    - gochecknoinits
+    - gochecksumtype
+    - gocognit
+    - goconst
     - gocritic
     - gocyclo
     - godot
+    - godox
     - gofmt
+    - gofumpt
+    - goheader
     - goimports
+    - gomoddirectives
+    - gomodguard
+    - goprintffuncname
     - gosec
     - gosimple
+    - gosmopolitan
     - govet
+    - grouper
+    - importas
     - ineffassign
+    - interfacebloat
+    - intrange
+    - lll
+    - loggercheck
+    - maintidx
+    - makezero
+    - mirror
     - misspell
+    - musttag
     - nakedret
+    - nestif
+    - nilerr
+    - nilnil
     - nlreturn
+    - noctx
+    - nolintlint
+    - nonamedreturns
+    - nosprintfhostport
+    - perfsprint
     - prealloc
+    - predeclared
+    - promlinter
+    - protogetter
+    - reassign
     - revive
+    - rowserrcheck
+    - sloglint
+    - spancheck
+    - sqlclosecheck
     - staticcheck
     - stylecheck
-    - typecheck
+    - tagalign
+    - tagliatelle
+    - tenv
+    - testableexamples
+    - testifylint
+    - testpackage
+    - thelper
+    - tparallel
     - unconvert
     - unparam
     - unused
+    - usestdlibvars
+    - wastedassign
     - whitespace
+    - wrapcheck
+    - wsl
+    - zerologlint
 
 issues:
   # Disable this option because it causes golint to hide almost all issues
@@ -60,3 +138,17 @@ issues:
       text: '^singleCaseSwitch:'
     - linters: [gosec]
       text: '^G115:' # false positives
+    - path: '_test\.go$'
+      text: '^dot-imports:'
+      linters:
+        - revive
+    - path: '_test\.go$'
+      linters:
+        - err113
+        - gocognit
+        - goconst
+        - lll
+        - maintidx
+        - testpackage
+        - varnamelen
+        - wsl
