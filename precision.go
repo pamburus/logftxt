@@ -2,6 +2,7 @@ package logftxt
 
 import (
 	"encoding"
+	"fmt"
 	"strconv"
 )
 
@@ -30,7 +31,7 @@ func (p *Precision) UnmarshalText(text []byte) error {
 	} else {
 		v, err := strconv.ParseInt(s, 10, 0)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to parse precision: %w", err)
 		}
 
 		*p = Precision(v)

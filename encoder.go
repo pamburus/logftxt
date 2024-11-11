@@ -95,6 +95,7 @@ func (e *encoder) setup(buf *logf.Buffer, ts time.Time) {
 			break
 		}
 	}
+
 	if e.cfg == nil {
 		e.cfg = DefaultConfig()
 	}
@@ -102,6 +103,7 @@ func (e *encoder) setup(buf *logf.Buffer, ts time.Time) {
 	if e.cfg.Theme.name != "" {
 		e.provideTheme = append([]ThemeProvideFunc{e.cfg.Theme.fn()}, e.provideTheme...)
 	}
+
 	for i := len(e.provideTheme) - 1; i >= 0; i-- {
 		theme, err := e.provideTheme[i](setupContext)
 		if err != nil {
@@ -115,6 +117,7 @@ func (e *encoder) setup(buf *logf.Buffer, ts time.Time) {
 			break
 		}
 	}
+
 	if e.theme == nil {
 		e.theme = DefaultTheme()
 	}
@@ -176,7 +179,7 @@ func (e *encoder) log(buf *logf.Buffer, entry logf.Entry) {
 	ee.startBufLen = buf.Len()
 	ee.entry = entry
 	ee.entry.LoggerName = loggerName
-	ee.entry.LoggerID = rand.Int31() //nolint:gosec
+	ee.entry.LoggerID = rand.Int31() //nolint:gosec // G404: weak random number generator is ok here
 
 	_ = ee.encode()
 
@@ -410,7 +413,7 @@ func (e *entryEncoder) EncodeFieldDurations(k string, v []time.Duration) {
 	})
 }
 
-//nolint:gocyclo
+//nolint:gocyclo // there is no need to simplify this function
 func (e *entryEncoder) EncodeTypeAny(v interface{}) {
 	switch v := v.(type) {
 	case nil:
@@ -712,6 +715,7 @@ func (e *entryEncoder) EncodeTypeArray(v logf.ArrayEncoder) {
 		e.buf.AppendString(e.theme.fmt.Array.inner.prefix)
 		ae := arrayEncoder{e, 0}
 		_ = v.EncodeLogfArray(&ae)
+
 		if ae.n == 0 {
 			e.buf.Data = e.buf.Data[:e.buf.Len()-len(e.theme.fmt.Array.inner.prefix)]
 		} else {
@@ -727,6 +731,7 @@ func (e *entryEncoder) EncodeTypeObject(v logf.ObjectEncoder) {
 		e.buf.AppendString(e.theme.fmt.Object.inner.prefix)
 		oe := objectEncoder{e, 0}
 		_ = v.EncodeLogfObject(&oe)
+
 		if oe.n == 0 {
 			e.buf.Data = e.buf.Data[:e.buf.Len()-len(e.theme.fmt.Object.inner.prefix)]
 		} else {
@@ -751,12 +756,15 @@ func (e *entryEncoder) appendArray(n int, appendElement func(int)) {
 	e.theme.fmt.Array.encode(e, func() {
 		if n != 0 {
 			e.buf.AppendString(e.theme.fmt.Array.inner.prefix)
+
 			for i := 0; i != n; i++ {
 				if i != 0 {
 					e.theme.fmt.Array.separator.encode(e)
 				}
+
 				appendElement(i)
 			}
+
 			e.buf.AppendString(e.theme.fmt.Array.inner.suffix)
 		}
 	})
@@ -808,6 +816,7 @@ func (e *entryEncoder) addKey(k string) {
 			e.appendAutoQuotedString(prefix)
 			e.theme.fmt.Key.separator.encode(e)
 		}
+
 		e.appendAutoQuotedString(k)
 	})
 }
@@ -856,12 +865,14 @@ func (e *entryEncoder) appendEscapedString(s string) {
 
 	for i := 0; i < len(s); {
 		c := s[i]
+
 		switch {
 		case c < utf8.RuneSelf && c >= 0x20 && c != '\\' && c != '"':
 			i++
 
 		case c < utf8.RuneSelf:
 			e.buf.AppendString(s[p:i])
+
 			switch c {
 			case '\t':
 				e.theme.fmt.Special.encode(e, func() {
@@ -892,6 +903,7 @@ func (e *entryEncoder) appendEscapedString(s string) {
 					e.buf.AppendByte(hex[c&0xf])
 				})
 			}
+
 			i++
 			p = i
 
@@ -902,6 +914,7 @@ func (e *entryEncoder) appendEscapedString(s string) {
 				e.theme.fmt.Special.encode(e, func() {
 					e.buf.AppendString(`\ufffd`)
 				})
+
 				i++
 				p = i
 			} else {
@@ -1116,7 +1129,9 @@ func (e *arrayEncoder) encode(encodeValue func()) {
 	if e.n != 0 {
 		e.e.theme.fmt.Array.separator.encode(e.e)
 	}
+
 	encodeValue()
+
 	e.n++
 }
 
@@ -1328,7 +1343,9 @@ func (e *objectEncoder) encode(encodeField func()) {
 			e.e.theme.fmt.Object.separator.encode(e.e)
 		})
 	}
+
 	encodeField()
+
 	if e.e.confirmSeparator(pos) {
 		e.n++
 	}
@@ -1364,5 +1381,7 @@ func newEncoder(options encoderOptions) *encoder {
 
 // ---
 
-const loggerName = "logftxt"
-const hex = "0123456789abcdef"
+const (
+	loggerName = "logftxt"
+	hex        = "0123456789abcdef"
+)

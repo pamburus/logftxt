@@ -26,7 +26,7 @@ func Load(reader io.Reader) (*Theme, error) {
 
 	err := yaml.NewDecoder(reader).Decode(&content)
 	if err != nil {
-		return fail(fmt.Errorf("failed to parse theme: %v", err))
+		return fail(fmt.Errorf("failed to parse theme: %w", err))
 	}
 
 	if content.Theme == nil {
@@ -39,7 +39,7 @@ func Load(reader io.Reader) (*Theme, error) {
 
 	err = content.Theme.Validate()
 	if err != nil {
-		return fail(fmt.Errorf("theme is invalid: %v", err))
+		return fail(fmt.Errorf("theme is invalid: %w", err))
 	}
 
 	return content.Theme, nil
@@ -64,7 +64,7 @@ func (t *Theme) Validate() error {
 	for i, item := range t.Items {
 		err := item.Validate()
 		if err != nil {
-			return fmt.Errorf("`items.%d` is invalid: %v", i, err)
+			return fmt.Errorf("`items.%d` is invalid: %w", i, err)
 		}
 	}
 

@@ -2,10 +2,10 @@ package logftxt
 
 import (
 	"embed"
+	"errors"
 	"fmt"
 	"io"
 	"io/fs"
-	"os"
 	"path"
 	"strings"
 	"sync"
@@ -34,7 +34,7 @@ func LoadTheme(filename string, opts ...domainOption) (*Theme, error) {
 func ReadTheme(reader io.Reader) (*Theme, error) {
 	cfg, err := themecfg.Load(reader)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to read theme: %w", err)
 	}
 
 	return newTheme(cfg), nil
@@ -44,6 +44,7 @@ func ReadTheme(reader io.Reader) (*Theme, error) {
 func DefaultTheme() *Theme {
 	defaultThemeOnce.Do(func() {
 		var err error
+
 		defaultTheme, err = LoadBuiltInTheme(defaultThemeName)
 		if err != nil {
 			panic(err)
@@ -57,11 +58,11 @@ func DefaultTheme() *Theme {
 func LoadBuiltInTheme(name string) (*Theme, error) {
 	f, err := embeddedThemes.Open(path.Join("assets/theme", name+".yml"))
 	if err != nil {
-		if os.IsNotExist(err) {
+		if errors.Is(err, fs.ErrNotExist) {
 			return nil, fmt.Errorf("built-in theme %q not found", name)
 		}
 
-		return nil, fmt.Errorf("failed to load built-in theme %q: %v", name, err)
+		return nil, fmt.Errorf("failed to load built-in theme %q: %w", name, err)
 	}
 
 	return ReadTheme(f)
@@ -71,7 +72,7 @@ func LoadBuiltInTheme(name string) (*Theme, error) {
 func ListBuiltInThemes() ([]string, error) {
 	matches, err := fs.Glob(embeddedThemes, "assets/theme/*.yml")
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to list built-in themes: %w", err)
 	}
 
 	for i := range matches {
@@ -191,7 +192,7 @@ func (v ThemeRef) String() string {
 // Load loads the referenced theme.
 func (v ThemeRef) Load() (*Theme, error) {
 	if v.name == "" {
-		return nil, nil
+		return nil, nil //nolint:nilnil // type [Theme] has no exported methods and cannot be used directly
 	}
 
 	if v.name[0] == '@' {
@@ -218,13 +219,11 @@ func (v ThemeRef) fn() ThemeProvideFunc {
 // ---
 
 func loadTheme(filename string, fs FS) (*Theme, error) {
-	f, err := fs.Open(filename) //nolint:gosec
+	f, err := fs.Open(filename) //nolint:gosec // it is ok to allow user to specify theme files
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to load theme %w", err)
 	}
-	defer func() {
-		_ = f.Close()
-	}()
+	defer f.Close() //nolint:errcheck // read-only
 
 	return ReadTheme(f)
 }
@@ -253,15 +252,10 @@ func (*itemLevel) encode(e *entryEncoder) {
 	// assert that logf.LevelDebug value is greater of equal than logf.LevelError value
 	_ = [logf.LevelDebug - logf.LevelError]struct{}{}
 
-	i := e.entry.Level
-	if i < logf.LevelError {
-		i = logf.LevelError
-	}
-	if i > logf.LevelDebug {
-		i = logf.LevelDebug
-	}
-
-	level := e.theme.fmt.Level[i]
+	index := e.entry.Level
+	index = max(index, logf.LevelError)
+	index = min(index, logf.LevelDebug)
+	level := e.theme.fmt.Level[index]
 
 	level.encode(e, func() {
 		e.buf.AppendString(level.text)
@@ -314,6 +308,7 @@ func (*itemFields) encode(e *entryEncoder) {
 		e.buf.AppendBytes(bytes)
 	} else {
 		le := e.buf.Len()
+
 		for _, field := range e.entry.DerivedFields {
 			pos := e.appendSeparator()
 			field.Accept(e)
@@ -440,6 +435,7 @@ func newTheme(cfg *themecfg.Theme) *Theme {
 	if theme.fmt.Key.separator.text == "" {
 		theme.fmt.Key.separator.text = "."
 	}
+
 	if theme.fmt.Logger.separator.text == "" {
 		theme.fmt.Logger.separator.text = "."
 	}
@@ -513,8 +509,10 @@ var embeddedThemes embed.FS
 
 const defaultThemeName = "default"
 
-var defaultThemeOnce sync.Once
-var defaultTheme *Theme
+var (
+	defaultThemeOnce sync.Once
+	defaultTheme     *Theme
+)
 
 // ---
 

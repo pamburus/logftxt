@@ -3,9 +3,10 @@ package logftxt
 import (
 	"bytes"
 	_ "embed"
+	"errors"
 	"fmt"
 	"io"
-	"os"
+	"io/fs"
 	"sync"
 
 	"gopkg.in/yaml.v3"
@@ -27,14 +28,15 @@ func ReadConfig(reader io.Reader) (*Config, error) {
 	}
 
 	var cfg Config
+
 	err := yaml.NewDecoder(reader).Decode(&cfg)
 	if err != nil {
-		return fail(fmt.Errorf("failed to parse config: %v", err))
+		return fail(fmt.Errorf("failed to parse config: %w", err))
 	}
 
 	err = cfg.Validate()
 	if err != nil {
-		return fail(fmt.Errorf("config is invalid: %v", err))
+		return fail(fmt.Errorf("config is invalid: %w", err))
 	}
 
 	return &cfg, nil
@@ -74,17 +76,17 @@ type Config struct {
 func (c Config) Validate() error {
 	err := c.Caller.Format.Validate()
 	if err != nil {
-		return fmt.Errorf("caller format is invalid: %v", err)
+		return fmt.Errorf("caller format is invalid: %w", err)
 	}
 
 	err = c.Values.Duration.Format.Validate()
 	if err != nil {
-		return fmt.Errorf("duration format is invalid: %v", err)
+		return fmt.Errorf("duration format is invalid: %w", err)
 	}
 
 	err = c.Values.Error.Format.Validate()
 	if err != nil {
-		return fmt.Errorf("error format is invalid: %v", err)
+		return fmt.Errorf("error format is invalid: %w", err)
 	}
 
 	return nil
@@ -225,18 +227,16 @@ func (v ErrorFormat) Validate() error {
 
 // ---
 
-func loadConfig(filename string, fs FS) (*Config, error) {
-	f, err := fs.Open(filename) //nolint:gosec
+func loadConfig(filename string, fileSystem FS) (*Config, error) {
+	f, err := fileSystem.Open(filename) //nolint:gosec // it is ok to allow user to specify config file path
 	if err != nil {
-		if os.IsNotExist(err) {
+		if errors.Is(err, fs.ErrNotExist) {
 			return nil, ErrFileNotFound{filename, err}
 		}
 
 		return nil, fmt.Errorf("failed to open file %q: %w", filename, err)
 	}
-	defer func() {
-		_ = f.Close()
-	}()
+	defer f.Close() //nolint:errcheck // read-only
 
 	return ReadConfig(f)
 }
@@ -277,7 +277,9 @@ func (t *embeddedConfigLoader) Load() *Config {
 
 // ---
 
-var _ EncoderOption = Config{}
-var _ AppenderOption = Config{}
-var _ EncoderOption = ConfigProvideFunc(nil)
-var _ AppenderOption = ConfigProvideFunc(nil)
+var (
+	_ EncoderOption  = Config{}
+	_ AppenderOption = Config{}
+	_ EncoderOption  = ConfigProvideFunc(nil)
+	_ AppenderOption = ConfigProvideFunc(nil)
+)

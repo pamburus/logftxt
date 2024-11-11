@@ -630,7 +630,7 @@ type fixedTimestampAppender struct {
 func (a fixedTimestampAppender) Append(e logf.Entry) error {
 	e.Time = a.ts
 
-	return a.Appender.Append(e)
+	return a.Appender.Append(e) //nolint:wrapcheck // error wrapping is not needed here
 }
 
 // ---
@@ -704,17 +704,19 @@ type anyStruct struct {
 	a int
 }
 
-type newTypeBool bool
-type newTypeInt int
-type newTypeInt8 int8
-type newTypeInt16 int16
-type newTypeInt32 int32
-type newTypeInt64 int64
-type newTypeUint uint
-type newTypeUint8 uint8
-type newTypeUint16 uint16
-type newTypeUint32 uint32
-type newTypeUint64 uint64
-type newTypeFloat32 float32
-type newTypeFloat64 float64
-type newTypeString string
+type (
+	newTypeBool    bool
+	newTypeInt     int
+	newTypeInt8    int8
+	newTypeInt16   int16
+	newTypeInt32   int32
+	newTypeInt64   int64
+	newTypeUint    uint
+	newTypeUint8   uint8
+	newTypeUint16  uint16
+	newTypeUint32  uint32
+	newTypeUint64  uint64
+	newTypeFloat32 float32
+	newTypeFloat64 float64
+	newTypeString  string
+)

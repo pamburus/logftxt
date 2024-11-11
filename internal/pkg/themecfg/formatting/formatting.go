@@ -22,6 +22,7 @@ func (i Item) UpdatedBy(other Item) Item {
 	i.Outer = i.Outer.UpdatedBy(other.Outer)
 	i.Inner = i.Inner.UpdatedBy(other.Inner)
 	i.Separator = i.Separator.UpdatedBy(other.Separator)
+
 	if other.Text != "" {
 		i.Text = other.Text
 	}
@@ -62,9 +63,11 @@ func (f Format) UpdatedBy(other Format) Format {
 	if other.Prefix != "" {
 		f.Prefix = other.Prefix
 	}
+
 	if other.Suffix != "" {
 		f.Suffix = other.Suffix
 	}
+
 	f.Style = f.Style.UpdatedBy(other.Style)
 
 	return f
@@ -97,9 +100,11 @@ func (s Style) UpdatedBy(other Style) Style {
 	if !other.Background.IsZero() {
 		s.Background = other.Background
 	}
+
 	if !other.Foreground.IsZero() {
 		s.Foreground = other.Foreground
 	}
+
 	if other.Modes != nil {
 		s.Modes = s.Modes.UpdatedBy(other.Modes)
 	}
@@ -121,20 +126,20 @@ type ModePatchList []ModePatch
 func (l ModePatchList) Sets() [3]sgr.ModeSet {
 	var sets [3]sgr.ModeSet
 
-	for _, p := range l {
-		switch p.Action {
+	for _, patch := range l {
+		switch patch.Action {
 		case sgr.ModeReplace, sgr.ModeAdd:
-			sets[0] = sets[0].With(p.Mode)
-			sets[1] = sets[1].Without(p.Mode)
-			sets[2] = sets[2].Without(p.Mode)
+			sets[0] = sets[0].With(patch.Mode)
+			sets[1] = sets[1].Without(patch.Mode)
+			sets[2] = sets[2].Without(patch.Mode)
 		case sgr.ModeRemove:
-			sets[0] = sets[0].Without(p.Mode)
-			sets[1] = sets[1].With(p.Mode)
-			sets[2] = sets[2].Without(p.Mode)
+			sets[0] = sets[0].Without(patch.Mode)
+			sets[1] = sets[1].With(patch.Mode)
+			sets[2] = sets[2].Without(patch.Mode)
 		case sgr.ModeToggle:
-			sets[0] = sets[0].Without(p.Mode)
-			sets[1] = sets[1].Without(p.Mode)
-			sets[2] = sets[2].With(p.Mode)
+			sets[0] = sets[0].Without(patch.Mode)
+			sets[1] = sets[1].Without(patch.Mode)
+			sets[2] = sets[2].With(patch.Mode)
 		}
 	}
 
@@ -158,7 +163,7 @@ type ModePatch struct {
 func (p ModePatch) MarshalText() ([]byte, error) {
 	mode, err := p.Mode.MarshalText()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to marshal mode: %w", err)
 	}
 
 	switch p.Action {
@@ -182,6 +187,7 @@ func (p *ModePatch) UnmarshalText(text []byte) error {
 	}
 
 	var action sgr.ModeAction
+
 	switch text[0] {
 	case '+':
 		action = sgr.ModeAdd
@@ -197,9 +203,10 @@ func (p *ModePatch) UnmarshalText(text []byte) error {
 	}
 
 	var mode sgr.Mode
+
 	err := mode.UnmarshalText(text)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to unmarshal mode: %w", err)
 	}
 
 	p.Mode = mode

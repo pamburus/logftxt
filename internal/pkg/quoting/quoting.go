@@ -9,17 +9,18 @@ func IsNeeded(s string) bool {
 	hasDigits := false
 	nDots := 0
 
-	for _, r := range s {
-		switch r {
+	for _, char := range s {
+		switch char {
 		case '.':
 			nDots++
 		case '=', '"', ' ', utf8.RuneError:
 			return true
 		default:
-			if r < ' ' {
+			if char < ' ' {
 				return true
 			}
-			if isDigit(r) {
+
+			if isDigit(char) {
 				hasDigits = true
 			} else {
 				looksLikeNumber = false
