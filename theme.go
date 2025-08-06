@@ -306,6 +306,7 @@ func (*itemFields) encode(e *entryEncoder) {
 	// Logger's fields.
 	if bytes, ok := e.cache.Get(e.entry.LoggerID); ok {
 		e.buf.AppendBytes(bytes)
+		e.lastPos = e.buf.Len()
 	} else {
 		le := e.buf.Len()
 

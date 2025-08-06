@@ -150,6 +150,32 @@ func TestEncoder(tt *testing.T) {
 		})
 	})
 
+	t.Run("StringIntString", func(t tst.Test) {
+		testEntry := logf.Entry{
+			DerivedFields: []logf.Field{
+				logf.String("dsf1", "sv1"),
+			},
+			Fields: []logf.Field{
+				logf.Int("dif1", 420),
+				logf.String("dsf2", "sv2"),
+			},
+			Level:  logf.LevelDebug,
+			Time:   time.Date(2020, 1, 2, 3, 4, 5, 6, time.UTC),
+			Text:   "xxx",
+			Caller: caller,
+		}
+
+		enc := logftxt.NewEncoder(config, logftxt.ColorAlways, theme, logftxt.FlattenObjects(true))
+
+		buf := logf.NewBuffer()
+		t.Expect(enc.Encode(buf, testEntry)).ToSucceed()
+		t.Expect(enc.Encode(buf, testEntry)).ToSucceed()
+
+		t.Expect(buf.String()).ToEqual(
+			"\x1b[2mJan  2 03:04:05.000\x1b[0m |\x1b[35mDBG\x1b[0m| \x1b[1mxxx\x1b[0m \x1b[32mdsf1\x1b[0m\x1b[2m=\x1b[0msv1 \x1b[32mdif1\x1b[0m\x1b[2m=\x1b[0m\x1b[94m420\x1b[0m \x1b[32mdsf2\x1b[0m\x1b[2m=\x1b[0msv2 \x1b[90;3m@ test.go:42\x1b[0m\n\x1b[2mJan  2 03:04:05.000\x1b[0m |\x1b[35mDBG\x1b[0m| \x1b[1mxxx\x1b[0m \x1b[32mdsf1\x1b[0m\x1b[2m=\x1b[0msv1 \x1b[32mdif1\x1b[0m\x1b[2m=\x1b[0m\x1b[94m420\x1b[0m \x1b[32mdsf2\x1b[0m\x1b[2m=\x1b[0msv2 \x1b[90;3m@ test.go:42\x1b[0m\n",
+		)
+	})
+
 	someTime := time.Date(2020, 1, 2, 3, 4, 5, 6, time.UTC)
 
 	t.Run("Field", func(t tst.Test) {
