@@ -1,7 +1,7 @@
 package logftxt
 
 import (
-	"github.com/ssgreg/logf"
+	"github.com/acronis/logf"
 
 	"github.com/pamburus/go-ansi-esc/sgr"
 )

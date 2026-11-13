@@ -3,7 +3,7 @@ package logftxt
 import (
 	"strconv"
 
-	"github.com/ssgreg/logf"
+	"github.com/acronis/logf"
 )
 
 // ---

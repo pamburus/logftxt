@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/ssgreg/logf"
+	"github.com/acronis/logf"
 
 	"github.com/pamburus/go-tst/tst"
 )

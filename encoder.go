@@ -10,7 +10,7 @@ import (
 	"unicode/utf8"
 	"unsafe"
 
-	"github.com/ssgreg/logf"
+	"github.com/acronis/logf"
 
 	"github.com/pamburus/logftxt/internal/pkg/quoting"
 )

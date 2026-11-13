@@ -1,7 +1,7 @@
 # logftxt [![GoDoc][doc-img]][doc] [![Build Status][ci-img]][ci] [![Coverage Status][cov-img]][cov]
 
-Package `logftxt` provides an alternative [logf](github.com/ssgreg/logf) Appender and Encoder for colored text logs.
-It can be used as a more flexible replacement for [logftext](https://github.com/ssgreg/logftext).
+Package `logftxt` provides an alternative [logf](https://github.com/acronis/logf) Appender and Encoder for colored text logs.
+It can be used as a more flexible replacement for [logftext](https://github.com/acronis/logftext).
 
 ## Features
 
@@ -45,7 +45,7 @@ import (
 	"runtime"
 	"runtime/debug"
 
-	"github.com/ssgreg/logf"
+	"github.com/acronis/logf"
 
 	"github.com/pamburus/logftxt"
 )

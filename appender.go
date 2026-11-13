@@ -4,7 +4,7 @@ package logftxt
 import (
 	"io"
 
-	"github.com/ssgreg/logf"
+	"github.com/acronis/logf"
 
 	"github.com/pamburus/ansitty"
 )
