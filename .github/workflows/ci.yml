@@ -39,7 +39,8 @@ jobs:
         include:
           # Minimum supported version: test only the main module, as auxiliary modules may require a newer Go.
           # GOTOOLCHAIN=local makes the job fail instead of silently switching to a newer toolchain.
-          - go: '1.22'
+          # The exact .0 release also catches dependency updates that raise the go directive to a newer patch.
+          - go: '1.22.0'
             gowork: 'off'
             gotoolchain: local
           - go: '1.27'
