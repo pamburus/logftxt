@@ -6,7 +6,7 @@ require (
 	github.com/acronis/logf v1.5.0
 	github.com/pamburus/ansitty v0.1.2
 	github.com/pamburus/go-ansi-esc v0.5.0
-	github.com/pamburus/go-tst v0.6.0
+	github.com/pamburus/go-tst v0.6.1
 	gopkg.in/yaml.v3 v3.0.1
 )
 
