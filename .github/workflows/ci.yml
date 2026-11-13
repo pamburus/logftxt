@@ -32,11 +32,20 @@ jobs:
         run: go list -m -f '{{.Dir}}/...' | golangci-lint run
 
   unit-tests:
-    name: Run unit tests
+    name: Run unit tests (${{ matrix.go }})
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go: ['1.22', '1.27']
+        include:
+          # Minimum supported version: test only the main module, as auxiliary modules may require a newer Go.
+          # GOTOOLCHAIN=local makes the job fail instead of silently switching to a newer toolchain.
+          - go: '1.22'
+            gowork: 'off'
+            gotoolchain: local
+          - go: '1.27'
+    env:
+      GOWORK: ${{ matrix.gowork }}
+      GOTOOLCHAIN: ${{ matrix.gotoolchain }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5

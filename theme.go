@@ -10,7 +10,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/ssgreg/logf"
+	"github.com/acronis/logf"
 
 	"github.com/pamburus/go-ansi-esc/sgr"
 	"github.com/pamburus/logftxt/internal/pkg/env"

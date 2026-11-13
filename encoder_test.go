@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ssgreg/logf"
+	"github.com/acronis/logf"
 
 	"github.com/pamburus/go-tst/tst"
 	"github.com/pamburus/logftxt"

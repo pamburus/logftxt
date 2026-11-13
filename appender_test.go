@@ -3,7 +3,7 @@ package logftxt
 import (
 	"testing"
 
-	"github.com/ssgreg/logf"
+	"github.com/acronis/logf"
 
 	"github.com/pamburus/go-tst/tst"
 	"github.com/pamburus/logftxt/internal/pkg/pathx"

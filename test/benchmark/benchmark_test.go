@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ssgreg/logf"
-	"github.com/ssgreg/logftext"
+	"github.com/acronis/logf"
+	"github.com/acronis/logftext"
 
 	"github.com/pamburus/logftxt"
 )
